@@ -11,6 +11,7 @@ import { ThemeProvider } from '@mui/material';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import cfcTheme from './utils/theme';
+import { CartProvider } from './utils/CartProvider';
 
 const appName = import.meta.env.VITE_APP_NAME || 'CFC_POS';
 
@@ -26,9 +27,11 @@ createInertiaApp({
         const root = createRoot(el);
 
         root.render(
-            <ThemeProvider theme={cfcTheme}>
-                <App {...props} />
-            </ThemeProvider>
+            <CartProvider>
+                <ThemeProvider theme={cfcTheme}>
+                    <App {...props} />
+                </ThemeProvider>
+            </CartProvider>
         );
     },
     progress: {

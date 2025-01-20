@@ -1,21 +1,22 @@
-import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { Meals, Menus } from '@/utils/fakeData';
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Collapse, Divider, Drawer, IconButton, Paper, Stack, styled, SwipeableDrawer, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, CardMedia, Collapse, Divider, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import Item from '@/Components/Item';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import Modal from '@/Components/Modal';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { useCart } from '@/utils/CartProvider';
 
 export default function Home() {
     const [activeMenu, setActiveMenu] = useState<number>(1);
     const [meals, setMeals] = useState<any>([]);
     const [activeCart, setActiveCart] = useState<boolean>(false);
-    const [cart, setCart] = useState<any>([]);
     const [open, setOpen] = useState(false);
     const [product, setProduct] = useState<any>(null);
     const [discount, setDiscount] = useState<number>(0);
+    const { cart, setCart } = useCart();
 
     const amount = useMemo(() => {
         let subtotal = cart.reduce((acc: any, item: any) => acc + item.quantity * item.price, 0).toFixed(0);
@@ -62,7 +63,7 @@ export default function Home() {
     }
 
     return (
-        <Authenticated>
+        <AuthenticatedLayout>
             <Head title="Meals" />
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch', height: 'calc(100% - 64px)' }}>
                 <Grid container sx={{ overflow: 'auto', height: '100%', flex: 1 }}>
@@ -243,6 +244,6 @@ export default function Home() {
                 setProduct={setProduct}
                 setDiscount={setDiscount}
             />
-        </Authenticated >
+        </AuthenticatedLayout >
     );
 }

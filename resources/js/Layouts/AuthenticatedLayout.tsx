@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import React, { PropsWithChildren, ReactNode } from 'react';
+import React, { createContext, PropsWithChildren, ReactNode, useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -20,6 +20,10 @@ import ListItemText from '@mui/material/ListItemText';
 import { Avatar } from '@mui/material';
 import Drowpdown from '@/Components/Dropdown';
 import { Assignment, Fastfood, Sell } from '@mui/icons-material';
+import { CartProvider } from '@/utils/CartProvider';
+
+const CartContext = createContext(null);
+
 
 const drawerWidth = 25;
 
@@ -84,9 +88,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     height: 'auto'
 }));
 
-export default function Authenticated({
+
+export default function AuthenticatedLayout({
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
+
+    const [cart, setCart] = useState<any>([]);
     const user = usePage().props.auth.user;
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
