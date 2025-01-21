@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Meals, Menus } from '@/utils/fakeData';
 import { Box, Button, Card, CardContent, CardMedia, Collapse, Divider, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
@@ -15,8 +15,7 @@ export default function Home() {
     const [activeCart, setActiveCart] = useState<boolean>(false);
     const [open, setOpen] = useState(false);
     const [product, setProduct] = useState<any>(null);
-    const [discount, setDiscount] = useState<number>(0);
-    const { cart, setCart } = useCart();
+    const { cart, setCart, totalPrice, setTotalPrice, discount, setDiscount } = useCart();
 
     const amount = useMemo(() => {
         let subtotal = cart.reduce((acc: any, item: any) => acc + item.quantity * item.price, 0).toFixed(0);
@@ -25,12 +24,14 @@ export default function Home() {
             subtotal = subtotal.toFixed(2);
         }
         const tax = (subtotal * 0.06).toFixed(2);
-        const total = (parseFloat(subtotal) + parseFloat(tax)).toFixed(2)
+        const total = (parseFloat(subtotal) + parseFloat(tax)).toFixed(2);
+        setTotalPrice(total);
         return { subtotal, total };
     }, [cart, discount]);
 
     useEffect(() => {
         const fetchMeals = Meals.filter((meal) => meal.menuId === activeMenu);
+        if (cart.length > 0) setActiveCart(true);
         setMeals(fetchMeals);
     }, [activeMenu]);
 
@@ -173,9 +174,9 @@ export default function Home() {
                                     <Table>
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell>Meals</TableCell>
-                                                <TableCell align='center'>Quantity</TableCell>
-                                                <TableCell align='center'>Price</TableCell>
+                                                <TableCell sx={{ padding: 1 }}>Meals</TableCell>
+                                                <TableCell align='center' sx={{ padding: 1 }}>Quantity</TableCell>
+                                                <TableCell align='center' sx={{ padding: 1 }}>Price</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -186,9 +187,9 @@ export default function Home() {
                                                         sx={{ '&:last-child td, &:last-child th': { border: 0 }, cursor: 'pointer', '&:hover': { backgroundColor: '#f8f8f8' } }}
                                                         onClick={() => handleEditorDelete(item)}
                                                     >
-                                                        <TableCell>{item.name}</TableCell>
-                                                        <TableCell align='center'>{item.quantity}</TableCell>
-                                                        <TableCell align='center'>{(item.quantity * item.price).toFixed(2)}</TableCell>
+                                                        <TableCell sx={{ padding: 1 }}>{item.name}</TableCell>
+                                                        <TableCell align='center' sx={{ padding: 1 }}>{item.quantity}</TableCell>
+                                                        <TableCell align='center' sx={{ padding: 1 }}>{(item.quantity * item.price).toFixed(2)}</TableCell>
                                                     </TableRow>
                                                 ))
                                             }
@@ -207,12 +208,12 @@ export default function Home() {
                                                     discount > 0 &&
                                                     <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                         <span>Discount:</span>
-                                                        <span>{discount}%</span>
+                                                        <span>(-) {discount}%</span>
                                                     </Typography>
                                                 }
                                                 <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <span>SST:</span>
-                                                    <span>6%</span>
+                                                    <span>(+) 6%</span>
                                                 </Typography>
                                                 <Typography variant='h6' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <span>Total:</span>
@@ -221,7 +222,7 @@ export default function Home() {
                                             </Box>
                                             <Divider />
                                             <Box sx={{ padding: 1, display: 'flex', justifyContent: 'space-between' }}>
-                                                <Button variant='outlined' color='primary'>Checkout</Button>
+                                                <Button variant='outlined' color='primary' component={Link} href={route("checkout")} >Checkout</Button>
                                                 <Button variant="text" size='small' onClick={() => setOpen(true)}>
                                                     Add Discount
                                                 </Button>

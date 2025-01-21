@@ -92,8 +92,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 export default function AuthenticatedLayout({
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-
-    const [cart, setCart] = useState<any>([]);
     const user = usePage().props.auth.user;
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -110,17 +108,20 @@ export default function AuthenticatedLayout({
         {
             id: 1,
             name: "Meals",
-            icon: <Fastfood />
+            icon: <Fastfood />,
+            href: "home",
         },
         {
             id: 2,
             name: "Orders",
             icon: <Assignment />,
+            href: "home",
         },
         {
             id: 3,
             name: "Sales",
             icon: <Sell />,
+            href: "home"
         }
     ];
 
@@ -172,22 +173,18 @@ export default function AuthenticatedLayout({
                 </DrawerHeader>
                 <Divider />
                 <List>
-                    {sidebarItems.map((item, index) => (
-                        <ListItem key={item.id} disablePadding>
-                            <ListItemButton>
-                                <ListItemIcon>
-                                    {item.icon}
-                                </ListItemIcon>
-                                <Link
-                                    href={route("home")}
-                                    style={{ background: "none", border: "none" }}
-                                    as="button"
-                                >
+                    {
+                        sidebarItems.map((item, index) => (
+                            <ListItem key={item.id} disablePadding>
+                                <ListItemButton component={Link} href={route(item.href)}>
+                                    <ListItemIcon>
+                                        {item.icon}
+                                    </ListItemIcon>
                                     <ListItemText primary={item.name} />
-                                </Link>
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
+                                </ListItemButton>
+                            </ListItem>
+                        ))
+                    }
                 </List>
             </Drawer>
         </Box >

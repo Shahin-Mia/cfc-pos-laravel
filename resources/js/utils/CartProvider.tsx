@@ -4,8 +4,17 @@ const CartContext = createContext<any>(null);
 
 export function CartProvider({ children }: { children?: ReactNode }) {
     const [cart, setCart] = useState<any>([]);
+    const [totalPrice, setTotalPrice] = useState<number>(0);
+    const [discount, setDiscount] = useState<number>(0);
     return (
-        <CartContext.Provider value={{ cart, setCart }}>
+        <CartContext.Provider value={{
+            cart,
+            setCart,
+            totalPrice,
+            setTotalPrice,
+            discount,
+            setDiscount
+        }}>
             {children}
         </CartContext.Provider>
     )
