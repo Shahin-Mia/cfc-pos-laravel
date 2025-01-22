@@ -20,9 +20,6 @@ import ListItemText from '@mui/material/ListItemText';
 import { Avatar } from '@mui/material';
 import Drowpdown from '@/Components/Dropdown';
 import { Assignment, Fastfood, Sell } from '@mui/icons-material';
-import { CartProvider } from '@/utils/CartProvider';
-
-const CartContext = createContext(null);
 
 
 const drawerWidth = 25;
@@ -115,7 +112,7 @@ export default function AuthenticatedLayout({
             id: 2,
             name: "Orders",
             icon: <Assignment />,
-            href: "home",
+            href: "orders.index",
         },
         {
             id: 3,

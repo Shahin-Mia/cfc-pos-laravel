@@ -143,7 +143,7 @@ export default function Home() {
                                         <CardContent
                                             sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}
                                         >
-                                            <Typography gutterBottom variant="h6" component="div" sx={{ minHeight: 50, fontSize: '1rem' }}>
+                                            <Typography gutterBottom variant="h6" sx={{ height: 80, fontSize: '1rem' }}>
                                                 {meal.name}
                                             </Typography>
                                             <Typography variant="body2" sx={{ color: 'text.secondary' }}>

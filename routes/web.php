@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Checkout\CheckoutController;
 use App\Http\Controllers\Home\HomeController;
+use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -9,6 +10,8 @@ use Inertia\Inertia;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get("/", [HomeController::class, "index"])->name('home');
     Route::get("/checkout", [CheckoutController::class, "index"])->name('checkout');
+    Route::get("/order-complete", [OrderController::class, "orderComplete"])->name('order.complete');
+    Route::resource("/orders", OrderController::class);
 });
 
 Route::get('/dashboard', function () {
