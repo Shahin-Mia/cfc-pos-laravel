@@ -21,13 +21,15 @@ class Product extends Model
         'is_available',
     ];
 
-    // public function stock() {
-    //     return $this->morphOne(Stock::class, 'stockable');
-    // }
+    public function stock()
+    {
+        return $this->morphOne(Stock::class, 'stockable');
+    }
 
-    // public function image() {
-    //     return $this->morphOne(Image::class, 'imageable');
-    // }
+    public function image()
+    {
+        return $this->morphOne(Image::class, 'imageable');
+    }
 
     public function category()
     {

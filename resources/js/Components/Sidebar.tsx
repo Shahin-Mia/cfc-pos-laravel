@@ -95,10 +95,10 @@ const Sidebar: React.FC = () => {
                 </ListItem>
                 <Collapse in={open.elements} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItemButton component={Link} href="/elements" sx={{ pl: 4 }}>
+                        <ListItemButton component={Link} href={route("elements.index")} sx={{ pl: 4 }}>
                             <ListItemText primary="Elements" />
                         </ListItemButton>
-                        <ListItemButton component={Link} href="/production" sx={{ pl: 4 }}>
+                        <ListItemButton component={Link} href={route("productions.index")} sx={{ pl: 4 }}>
                             <ListItemText primary="Production" />
                         </ListItemButton>
                     </List>

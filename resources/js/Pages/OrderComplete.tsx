@@ -14,7 +14,7 @@ function OrderComplete() {
                         Order Completed
                     </Typography>
                     <Stack direction="row" spacing={3}>
-                        <Button variant="outlined">Print Receipt</Button>
+                        <Button variant="outlined" component={Link} href={route("print.receipt")}>Print Receipt</Button>
                         <Button variant="outlined" component={Link} href={route("orders.index")}>View Orders</Button>
                     </Stack>
                 </Paper>

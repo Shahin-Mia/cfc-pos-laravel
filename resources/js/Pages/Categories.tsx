@@ -53,7 +53,6 @@ const Categories: React.FC<Props> = ({ categories }: Props) => {
         setIsLoading(true);
 
         if (isEditing && editingId) {
-            // Update category using Inertia
             put(route("categories.update", editingId), {
                 onSuccess: () => {
                     setAlertSuccess("Category successfully updated.");
@@ -63,7 +62,6 @@ const Categories: React.FC<Props> = ({ categories }: Props) => {
                 onFinish: () => setIsLoading(false),
             });
         } else {
-            // Create category using Inertia
             post(route("categories.store"), {
                 onSuccess: () => {
                     setAlertSuccess("Category successfully created.");

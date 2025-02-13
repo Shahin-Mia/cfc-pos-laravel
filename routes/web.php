@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Checkout\CheckoutController;
+use App\Http\Controllers\Dashboard\ElementController;
 use App\Http\Controllers\Dashboard\ProductController;
+use App\Http\Controllers\Dashboard\ProductionController;
 use App\Http\Controllers\Dashboard\UnitController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\Order\OrderController;
@@ -19,7 +21,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::group(["prefix" => "dashboard"], function () {
         Route::resource("/units", UnitController::class)->except(["create", "show", "edit"]);
         Route::resource("/categories", CategoryController::class)->except(["create", "show", "edit"]);
-        Route::resource("/products", ProductController::class);
+        Route::resource("/products", ProductController::class)->except(["update"]);
+        Route::post("/products/{product_id}", [ProductController::class, "update"])->name("products.update");
+        Route::resource("/elements", ElementController::class);
+        Route::resource("/productions", ProductionController::class);
+
+        Route::get("/print-receipt", [ProductController::class, "printReceipt"])->name("print.receipt");
     });
 });
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SyntheticEvent, useEffect, useState } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import {
     Box,
@@ -17,16 +17,26 @@ import {
     Pagination,
     Tooltip,
     Badge,
+    SnackbarCloseReason,
+    Snackbar,
+    Alert,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AddIcon from "@mui/icons-material/Add";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 
 
-const Products: React.FC<any> = ({ products, pagination }) => {
+const Products: React.FC<any> = ({ products, pagination, flash }) => {
+    const [openSnackbar, setOpenSnackbar] = useState(false);
     const { delete: destroy, processing } = useForm();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [menuProductId, setMenuProductId] = React.useState<number | null>(null);
+
+    useEffect(() => {
+        if (flash.success || flash.error) {
+            setOpenSnackbar(true);
+        }
+    }, [flash]);
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, id: number) => {
         setAnchorEl(event.currentTarget);
@@ -38,7 +48,7 @@ const Products: React.FC<any> = ({ products, pagination }) => {
     };
 
     const handleDelete = (id: number) => {
-        destroy(route("product.destroy", id), {
+        destroy(route("products.destroy", id), {
             preserveScroll: true,
         });
         handleMenuClose();
@@ -50,9 +60,27 @@ const Products: React.FC<any> = ({ products, pagination }) => {
         window.location.href = `${window.location.pathname}?${query.toString()}`;
     };
 
+    const handleClose = (event: SyntheticEvent<Element, Event> | Event, reason?: SnackbarCloseReason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpenSnackbar(false);
+    };
+
     return (
         <DashboardLayout>
             <Head title="Products" />
+            <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+                <Alert
+                    onClose={handleClose}
+                    severity={flash.success ? "success" : "error"}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {flash.success ? flash.success : flash.error}
+                </Alert>
+            </Snackbar>
             {/* Header */}
             <Box display="flex" justifyContent="space-between" mb={3}>
                 <Typography variant="h5">Products</Typography>
@@ -69,7 +97,7 @@ const Products: React.FC<any> = ({ products, pagination }) => {
 
             {/* Table */}
             <TableContainer>
-                <Table>
+                <Table size="small">
                     <TableHead>
                         <TableRow>
                             <TableCell>#</TableCell>
@@ -90,16 +118,25 @@ const Products: React.FC<any> = ({ products, pagination }) => {
                         {products.data.map((product: any, index: any) => (
                             <TableRow key={product.id}>
                                 <TableCell>
-                                    {(pagination.current_page - 1) * pagination.per_page + index + 1}
+                                    {(products.current_page - 1) * products.per_page + index + 1}
                                 </TableCell>
                                 <TableCell>{product.title}</TableCell>
-                                <TableCell>{product.purchasePrice.toFixed(2)}</TableCell>
-                                <TableCell>{product.salePrice.toFixed(2)}</TableCell>
-                                <TableCell>{product.stockQty}</TableCell>
+                                <TableCell>
+                                    {product.stock.purchase_price.toFixed(2)}|
+                                    {product.stock.purchase_unit.name}
+                                </TableCell>
+                                <TableCell>
+                                    {product.stock.sale_price.toFixed(2)}|
+                                    {product.stock.sale_unit.name}
+                                </TableCell>
+                                <TableCell>
+                                    {product.stock.stock}|
+                                    {product.stock.sale_unit.name}
+                                </TableCell>
                                 <TableCell>
                                     <Tooltip title="View Image">
                                         <Avatar
-                                            src={product.image}
+                                            src={`/storage/${product.image.image}`}
                                             alt="Product Image"
                                             sx={{ width: 40, height: 40 }}
                                         />
@@ -120,19 +157,19 @@ const Products: React.FC<any> = ({ products, pagination }) => {
                                         {product.description}
                                     </Typography>
                                 </TableCell>
-                                <TableCell>{product.serial}</TableCell>
+                                <TableCell>{product.model_no}</TableCell>
                                 <TableCell>{product.barcode}</TableCell>
                                 <TableCell>
                                     {product.category?.name}
-                                    {product.subCategory?.name && (
+                                    {product.sub_category?.name && (
                                         <>
-                                            {" => "}
-                                            {product.subCategory.name}
+                                            {" > "}
+                                            {product.sub_category.name}
                                         </>
                                     )}
                                 </TableCell>
                                 <TableCell>
-                                    {product.isAvailable ? (
+                                    {product.is_available ? (
                                         <Badge color="success" badgeContent="Yes" />
                                     ) : (
                                         <Badge color="error" badgeContent="No" />
@@ -151,7 +188,7 @@ const Products: React.FC<any> = ({ products, pagination }) => {
                                     >
                                         <MenuItem
                                             component={Link}
-                                            href={route("product.edit", product.id)}
+                                            href={route("products.edit", product.id)}
                                         >
                                             Edit/View
                                         </MenuItem>
@@ -172,8 +209,8 @@ const Products: React.FC<any> = ({ products, pagination }) => {
             {/* Pagination */}
             <Box mt={2} display="flex" justifyContent="center">
                 <Pagination
-                    count={pagination?.last_page}
-                    page={pagination?.current_page}
+                    count={products.last_page}
+                    page={products.current_page}
                     onChange={handlePageChange}
                     color="primary"
                 />
