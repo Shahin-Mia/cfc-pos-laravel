@@ -26,12 +26,12 @@ import AddIcon from "@mui/icons-material/Add";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 
 
-const Products: React.FC<any> = ({ products, flash }) => {
+const Meals: React.FC<any> = ({ meals, flash }) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const { delete: destroy, processing } = useForm();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [menuProductId, setMenuProductId] = React.useState<number | null>(null);
-
+    console.log(meals);
     useEffect(() => {
         if (flash.success || flash.error) {
             setOpenSnackbar(true);
@@ -70,7 +70,7 @@ const Products: React.FC<any> = ({ products, flash }) => {
 
     return (
         <DashboardLayout>
-            <Head title="Products" />
+            <Head title="Meals" />
             <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
                 <Alert
                     onClose={handleClose}
@@ -83,14 +83,14 @@ const Products: React.FC<any> = ({ products, flash }) => {
             </Snackbar>
             {/* Header */}
             <Box display="flex" justifyContent="space-between" mb={3}>
-                <Typography variant="h5">Products</Typography>
-                <Link href={route("products.create")}>
+                <Typography variant="h5">Meals</Typography>
+                <Link href={route("meals.create")}>
                     <Button
                         variant="contained"
                         color="primary"
                         startIcon={<AddIcon />}
                     >
-                        Add Product
+                        Add Meal
                     </Button>
                 </Link>
             </Box>
@@ -103,41 +103,32 @@ const Products: React.FC<any> = ({ products, flash }) => {
                             <TableCell>#</TableCell>
                             <TableCell>Title</TableCell>
                             <TableCell>P.Price</TableCell>
-                            <TableCell>S.Price</TableCell>
-                            <TableCell>StockQty</TableCell>
+                            <TableCell>Sale Price</TableCell>
                             <TableCell>Img</TableCell>
                             <TableCell>Description</TableCell>
-                            <TableCell>Serial</TableCell>
-                            <TableCell>Barcode</TableCell>
                             <TableCell>Category</TableCell>
                             <TableCell>Avail.</TableCell>
                             <TableCell>Action</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {products.data.map((product: any, index: any) => (
-                            <TableRow key={product.id}>
+                        {meals.data.map((meal: any, index: any) => (
+                            <TableRow key={meal.id}>
                                 <TableCell>
-                                    {(products.current_page - 1) * products.per_page + index + 1}
+                                    {(meals.current_page - 1) * meals.per_page + index + 1}
                                 </TableCell>
-                                <TableCell>{product.title}</TableCell>
+                                <TableCell>{meals.title}</TableCell>
                                 <TableCell>
-                                    {product.stock.purchase_price.toFixed(2)}|
-                                    {product.stock.purchase_unit.name}
-                                </TableCell>
-                                <TableCell>
-                                    {product.stock.sale_price.toFixed(2)}|
-                                    {product.stock.sale_unit.name}
+                                    {meal.purchase_price.toFixed(2)}
                                 </TableCell>
                                 <TableCell>
-                                    {product.stock.stock}|
-                                    {product.stock.sale_unit.name}
+                                    {meal.sale_price.toFixed(2)}
                                 </TableCell>
                                 <TableCell>
                                     <Tooltip title="View Image">
                                         <Avatar
-                                            src={`/storage/${product.image.image}`}
-                                            alt="Product Image"
+                                            src={`/storage/${meal.image.image}`}
+                                            alt="Meal Image"
                                             sx={{ width: 40, height: 40 }}
                                         />
                                     </Tooltip>
@@ -154,22 +145,14 @@ const Products: React.FC<any> = ({ products, flash }) => {
                                             whiteSpace: "nowrap",
                                         }}
                                     >
-                                        {product.description}
+                                        {meal.description}
                                     </Typography>
                                 </TableCell>
-                                <TableCell>{product.model_no}</TableCell>
-                                <TableCell>{product.barcode}</TableCell>
                                 <TableCell>
-                                    {product.category?.name}
-                                    {product.sub_category?.name && (
-                                        <>
-                                            {" > "}
-                                            {product.sub_category.name}
-                                        </>
-                                    )}
+                                    {meal.mealCategory?.name}
                                 </TableCell>
                                 <TableCell>
-                                    {product.is_available ? (
+                                    {meal.is_available ? (
                                         <Badge color="success" badgeContent="Yes" />
                                     ) : (
                                         <Badge color="error" badgeContent="No" />
@@ -177,23 +160,23 @@ const Products: React.FC<any> = ({ products, flash }) => {
                                 </TableCell>
                                 <TableCell>
                                     <IconButton
-                                        onClick={(e) => handleMenuOpen(e, product.id)}
+                                        onClick={(e) => handleMenuOpen(e, meal.id)}
                                     >
                                         <MoreVertIcon />
                                     </IconButton>
                                     <Menu
                                         anchorEl={anchorEl}
-                                        open={Boolean(anchorEl) && menuProductId === product.id}
+                                        open={Boolean(anchorEl) && menuProductId === meal.id}
                                         onClose={handleMenuClose}
                                     >
                                         <MenuItem
                                             component={Link}
-                                            href={route("products.edit", product.id)}
+                                            href={route("products.edit", meal.id)}
                                         >
                                             Edit/View
                                         </MenuItem>
                                         <MenuItem
-                                            onClick={() => handleDelete(product.id)}
+                                            onClick={() => handleDelete(meal.id)}
                                             disabled={processing}
                                         >
                                             Delete
@@ -209,8 +192,8 @@ const Products: React.FC<any> = ({ products, flash }) => {
             {/* Pagination */}
             <Box mt={2} display="flex" justifyContent="center">
                 <Pagination
-                    count={products.last_page}
-                    page={products.current_page}
+                    count={meals.last_page}
+                    page={meals.current_page}
                     onChange={handlePageChange}
                     color="primary"
                 />
@@ -219,4 +202,4 @@ const Products: React.FC<any> = ({ products, flash }) => {
     );
 };
 
-export default Products;
+export default Meals;

@@ -23,6 +23,7 @@ import { Link } from '@inertiajs/react';
 type MenuState = {
     products: boolean;
     elements: boolean;
+    meals: boolean;
     accounting: boolean;
     reports: boolean;
     settings: boolean;
@@ -32,6 +33,7 @@ const Sidebar: React.FC = () => {
     const [open, setOpen] = useState<MenuState>({
         products: false,
         elements: false,
+        meals: false,
         accounting: false,
         reports: false,
         settings: false,
@@ -59,6 +61,27 @@ const Sidebar: React.FC = () => {
                     </ListItemButton>
                 </ListItem>
                 <Divider />
+                {/* Elements Menu */}
+                <ListItem disablePadding>
+                    <ListItemButton onClick={() => toggleMenu('elements')} divider>
+                        <ListItemIcon>
+                            <ListAlt />
+                        </ListItemIcon>
+                        <ListItemText primary="Elements" />
+                        {open.elements ? <ExpandLess /> : <ExpandMore />}
+                    </ListItemButton>
+                </ListItem>
+                <Collapse in={open.elements} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        <ListItemButton component={Link} href={route("elements.index")} sx={{ pl: 4 }}>
+                            <ListItemText primary="Elements" />
+                        </ListItemButton>
+                        <ListItemButton component={Link} href={route("productions.index")} sx={{ pl: 4 }}>
+                            <ListItemText primary="Production" />
+                        </ListItemButton>
+                    </List>
+                </Collapse>
+                <Divider />
                 {/* Products Menu */}
                 <ListItem disablePadding>
                     <ListItemButton onClick={() => toggleMenu('products')} divider>
@@ -83,23 +106,23 @@ const Sidebar: React.FC = () => {
                     </List>
                 </Collapse>
                 <Divider />
-                {/* Elements Menu */}
+
                 <ListItem disablePadding>
-                    <ListItemButton onClick={() => toggleMenu('elements')} divider>
+                    <ListItemButton onClick={() => toggleMenu('meals')}>
                         <ListItemIcon>
-                            <ListAlt />
+                            <Money />
                         </ListItemIcon>
-                        <ListItemText primary="Elements" />
-                        {open.elements ? <ExpandLess /> : <ExpandMore />}
+                        <ListItemText primary="Meals" />
+                        {open.meals ? <ExpandLess /> : <ExpandMore />}
                     </ListItemButton>
                 </ListItem>
-                <Collapse in={open.elements} timeout="auto" unmountOnExit>
+                <Collapse in={open.meals} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItemButton component={Link} href={route("elements.index")} sx={{ pl: 4 }}>
-                            <ListItemText primary="Elements" />
+                        <ListItemButton component={Link} href={route("meal-categories.index")} sx={{ pl: 4 }}>
+                            <ListItemText primary="Category" />
                         </ListItemButton>
-                        <ListItemButton component={Link} href={route("productions.index")} sx={{ pl: 4 }}>
-                            <ListItemText primary="Production" />
+                        <ListItemButton component={Link} href={route("meals.index")} sx={{ pl: 4 }}>
+                            <ListItemText primary="Item" />
                         </ListItemButton>
                     </List>
                 </Collapse>
@@ -115,11 +138,14 @@ const Sidebar: React.FC = () => {
                 </ListItem>
                 <Collapse in={open.accounting} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItemButton component={Link} href="/elements" sx={{ pl: 4 }}>
-                            <ListItemText primary="Elements" />
+                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                            <ListItemText primary="Sales" />
                         </ListItemButton>
-                        <ListItemButton component={Link} href="/production" sx={{ pl: 4 }}>
-                            <ListItemText primary="Production" />
+                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                            <ListItemText primary="Orders" />
+                        </ListItemButton>
+                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                            <ListItemText primary="Expenses" />
                         </ListItemButton>
                     </List>
                 </Collapse>
@@ -135,11 +161,14 @@ const Sidebar: React.FC = () => {
                 </ListItem>
                 <Collapse in={open.reports} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        <ListItemButton component={Link} href="/elements" sx={{ pl: 4 }}>
-                            <ListItemText primary="Elements" />
+                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                            <ListItemText primary="Element Stock" />
                         </ListItemButton>
-                        <ListItemButton component={Link} href="/production" sx={{ pl: 4 }}>
-                            <ListItemText primary="Production" />
+                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                            <ListItemText primary="Product Stock" />
+                        </ListItemButton>
+                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                            <ListItemText primary="Production Stock" />
                         </ListItemButton>
                     </List>
                 </Collapse>

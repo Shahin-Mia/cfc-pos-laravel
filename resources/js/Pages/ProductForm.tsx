@@ -24,6 +24,7 @@ interface ProductAddProps {
     subCategories: SubCategory[];
     units: Unit[];
     product: any;
+    production: any;
     flash: any;
 }
 
@@ -50,6 +51,7 @@ function ProductForm({
     subCategories,
     units,
     product,
+    production,
     flash
 }: ProductAddProps) {
     const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -73,6 +75,37 @@ function ProductForm({
 
 
     useEffect(() => {
+        if (production) {
+            const keys = Object.keys(data);
+            keys.forEach((key: any) => {
+                switch (key) {
+                    case "title":
+                        setData(key, production["title"]);
+                        break;
+                    case "purchase_unit":
+                        setData(key, production["unit_id"]);
+                        break;
+                    case "purchase_price":
+                        setData(key, production["price"]);
+                        break;
+                    case "sale_unit":
+                        setData(key, production["unit_id"]);
+                        break;
+                    case "sale_price":
+                        setData(key, production["price"]);
+                        break;
+                    case "conversion_rate":
+                        setData(key, 1);
+                        break;
+                    case "opening_stock":
+                        setData(key, production["quantity"]);
+                        break;
+                    case "description":
+                        setData(key, production["description"]);
+                        break;
+                }
+            })
+        }
         if (product) {
             const keys = Object.keys(data);
             keys.forEach((key: any) => {
@@ -129,6 +162,10 @@ function ProductForm({
         e.preventDefault();
         if (product) {
             post(route("products.update", product.id));
+        } else if (production) {
+            post(route("products.store", {
+                production_id: production.id
+            }));
         } else {
             post(route("products.store"));
         }
@@ -137,7 +174,6 @@ function ProductForm({
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setData('image', e.target.files[0]);
-            console.log(data);
         }
     };
 

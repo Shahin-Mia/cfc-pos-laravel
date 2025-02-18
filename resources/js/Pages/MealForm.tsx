@@ -30,45 +30,47 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 
 
-const ProductionCreate: React.FC<any> = ({ units, elements, production, flash }) => {
+const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [d_elements, setDElement] = useState<any>([]);
+    const [d_products, setDproducts] = useState<any>([]);
     const { data, setData, post, put, processing, errors } = useForm({
         title: "",
         description: "",
-        unit_id: "",
-        quantity: "",
-        production_price: "",
-        elements_selected: [] as any,
-        ...(production && { deleted_elements: [] as any })
+        meal_category_id: "",
+        purchase_price: "",
+        sale_price: "",
+        image: null,
+        is_available: "",
+        products_selected: [] as any,
+        ...(meal && { deleted_products: [] as any })
     });
 
     useEffect(() => {
-        if (production) {
-            const keys = Object.keys(data);
-            keys.forEach((key: any) => {
-                switch (key) {
-                    case "elements_selected":
-                        let selectedElements: any = [];
-                        production.production_elements.forEach((item: any) => {
-                            let modItem = {
-                                ...item.element,
-                                ...item,
-                                total_price: item.price,
-                                production_element_id: item.id
-                            }
-                            selectedElements.push(modItem);
-                        });
-                        setData(key, selectedElements);
-                        break;
-                    case "production_price":
-                        setData(key, production["price"]);
-                        break;
-                    default:
-                        setData(key, production[key]);
-                }
-            });
-        }
+        // if (meal) {
+        //     const keys = Object.keys(data);
+        //     keys.forEach((key: any) => {
+        //         switch (key) {
+        //             case "elements_selected":
+        //                 let selectedElements: any = [];
+        //                 meal.production_elements.forEach((item: any) => {
+        //                     let modItem = {
+        //                         ...item.element,
+        //                         ...item,
+        //                         total_price: item.price,
+        //                         production_element_id: item.id
+        //                     }
+        //                     selectedElements.push(modItem);
+        //                 });
+        //                 setData(key, selectedElements);
+        //                 break;
+        //             case "production_price":
+        //                 setData(key, meal["price"]);
+        //                 break;
+        //             default:
+        //                 setData(key, meal[key]);
+        //         }
+        //     });
+        // }
         if (flash.success || flash.error) {
             console.log(flash);
             setOpenSnackbar(true);
@@ -81,7 +83,7 @@ const ProductionCreate: React.FC<any> = ({ units, elements, production, flash })
         if (e.target.value) {
             setElementSearch(e.target.value);
             setFilteredElements(
-                elements.filter((el: any) =>
+                products.filter((el: any) =>
                     el.title.toLowerCase().includes(e.target.value.toLowerCase())
                 )
             );
@@ -111,8 +113,8 @@ const ProductionCreate: React.FC<any> = ({ units, elements, production, flash })
     const deleteElement = (index: number) => {
         const dElement = data.elements_selected.find((_: any, i: number) => i === index);
 
-        if (production && dElement) {
-            const isExistingElement = production.production_elements.some(
+        if (meal && dElement) {
+            const isExistingElement = meal.production_elements.some(
                 (item: any) => item.id === dElement.id
             );
 
@@ -147,13 +149,13 @@ const ProductionCreate: React.FC<any> = ({ units, elements, production, flash })
             0
         );
         if (totalPrice === Number(data.production_price)) {
-            if (production) {
-                put(route("productions.update", production.id));
+            if (meal) {
+                put(route("productions.update", meal.id));
             } else {
                 post(route("productions.store"));
             }
         } else {
-            flash.error = "Calculate production cost!";
+            flash.error = "Calculate meal cost!";
             setOpenSnackbar(true);
         }
     };
@@ -181,7 +183,7 @@ const ProductionCreate: React.FC<any> = ({ units, elements, production, flash })
             <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h5">
                     {
-                        production ?
+                        meal ?
                             "Production Edit" :
                             "Production Create"
                     }
@@ -305,7 +307,7 @@ const ProductionCreate: React.FC<any> = ({ units, elements, production, flash })
                                         label="Unit*"
                                     >
                                         <MenuItem value="">Choose</MenuItem>
-                                        {units.map((unit: any) => (
+                                        {mealCategories.map((unit: any) => (
                                             <MenuItem key={unit.id} value={unit.id}>
                                                 {unit.name}
                                             </MenuItem>
@@ -342,7 +344,7 @@ const ProductionCreate: React.FC<any> = ({ units, elements, production, flash })
                                     {
                                         processing ?
                                             <CircularProgress size={24} /> :
-                                            production ?
+                                            meal ?
                                                 "Update Production" :
                                                 "Create Production"
                                     }
@@ -356,4 +358,4 @@ const ProductionCreate: React.FC<any> = ({ units, elements, production, flash })
     );
 };
 
-export default ProductionCreate;
+export default MealForm;

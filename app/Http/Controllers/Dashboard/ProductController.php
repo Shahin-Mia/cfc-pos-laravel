@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Production;
 use App\Models\Unit;
 use Exception;
 use Illuminate\Http\Request;
@@ -49,15 +50,15 @@ class ProductController extends Controller
         $production = null;
 
         // Check if "production_id" exists in the request
-        // if ($request->has('production_id')) {
-        //     $production = Production::find($request->input('production_id'));
-        // }
+        if ($request->has('production_id')) {
+            $production = Production::find($request->input('production_id'));
+        }
 
         return Inertia::render("ProductForm", [
             'categories' => $categories,
             'subCategories' => $subCategories,
             'units' => $units,
-            // 'production' => $production
+            'production' => $production
         ]);
     }
 
@@ -88,12 +89,12 @@ class ProductController extends Controller
 
         // Check for production association
         $production = null;
-        // if ($request->has('production_id')) {
-        //     $production = Production::find($request->input('production_id'));
-        //     if ($production && $production->quantity < $validatedData['opening_stock']) {
-        //         return response()->json(['error' => 'Insufficient production quantity'], 400);
-        //     }
-        // }
+        if ($request->has('production_id')) {
+            $production = Production::find($request->input('production_id'));
+            if ($production && $production->quantity < $validatedData['opening_stock']) {
+                return response()->json(['error' => 'Insufficient production quantity'], 400);
+            }
+        }
 
         // Store the product image
         $imagePath = $request->file('image')->store('product_images', 'public');

@@ -18,11 +18,14 @@ import {
     Menu,
     MenuItem,
     IconButton,
-    Pagination
+    Pagination,
+    Snackbar,
+    Alert,
+    SnackbarCloseReason
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Add, MoreVert } from '@mui/icons-material';
-import { useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 
 interface Production {
     id: number;
@@ -42,13 +45,18 @@ interface ProductionProps {
     links: any;
 }
 
-function Production({ productions }: { productions: ProductionProps }) {
-    console.log(productions);
+function Production({ productions, flash }: { productions: ProductionProps, flash: any }) {
+    console.log(productions)
+    const [openSnackbar, setOpenSnackbar] = useState(false);
     const [search, setSearch] = useState('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [selectedProductionId, setSelectedProductionId] = useState<number | null>(null);
-
-    const { delete: deleteProduction } = useForm();
+    useEffect(() => {
+        if (flash.success || flash.error) {
+            console.log(flash);
+            setOpenSnackbar(true);
+        }
+    }, [flash]);
 
     const handleMenuClick = (event: React.MouseEvent<HTMLElement>, id: number) => {
         setAnchorEl(event.currentTarget);
@@ -61,11 +69,29 @@ function Production({ productions }: { productions: ProductionProps }) {
     };
 
     const handleDelete = (id: number) => {
-        router.delete(`/production/${id}`);
+        router.delete(route("productions.destroy", id));
+    };
+
+    const handleClose = (event: SyntheticEvent<Element, Event> | Event, reason?: SnackbarCloseReason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpenSnackbar(false);
     };
     return (
         <DashboardLayout>
             <Head title="Production" />
+            <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+                <Alert
+                    onClose={handleClose}
+                    severity={flash.success ? "success" : "error"}
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {flash.success ? flash.success : flash.error}
+                </Alert>
+            </Snackbar>
             <Box>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Typography variant="h4">Production</Typography>
@@ -132,7 +158,11 @@ function Production({ productions }: { productions: ProductionProps }) {
                                                     multiline
                                                     fullWidth
                                                     size="small"
-                                                    InputProps={{ readOnly: true }}
+                                                    slotProps={{
+                                                        input: {
+                                                            readOnly: true,
+                                                        },
+                                                    }}
                                                 />
                                             </TableCell>
                                             <TableCell align="center">
@@ -142,7 +172,7 @@ function Production({ productions }: { productions: ProductionProps }) {
                                             <TableCell align="center">
                                                 {production.products && production.products.length > 0 ? (
                                                     <Button
-                                                        href={`/product/${production.products[0].id}/edit`}
+                                                        // href={`/product/${production.products[0].id}/edit`}
                                                         variant="contained"
                                                         size="small"
                                                         color="success"
@@ -162,8 +192,8 @@ function Production({ productions }: { productions: ProductionProps }) {
                                                     anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                                                     transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                                                 >
-                                                    <MenuItem component="a" href={`/production/${production.id}/edit`}>View/Edit</MenuItem>
-                                                    <MenuItem component="a" href={`/product/create?production_id=${production.id}`}>Add to Product</MenuItem>
+                                                    <MenuItem component={Link} href={route("productions.edit", production.id)}>View/Edit</MenuItem>
+                                                    <MenuItem component={Link} href={route("products.create", { production_id: production.id })}>Add to Product</MenuItem>
                                                     <MenuItem onClick={() => handleDelete(production.id)}>Delete</MenuItem>
                                                 </Menu>
                                             </TableCell>

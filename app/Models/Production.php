@@ -22,9 +22,10 @@ class Production extends Model
         return $this->belongsTo(Unit::class, 'unit_id');
     }
 
-    // public function productionElements() {
-    //     return $this->hasMany(ProductionElement::class);
-    // }
+    public function productionElements()
+    {
+        return $this->hasMany(ProductionElement::class);
+    }
 
     public function products()
     {
