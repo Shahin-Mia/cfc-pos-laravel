@@ -32,7 +32,7 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 
 const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [d_products, setDproducts] = useState<any>([]);
+    const [d_products, setDProducts] = useState<any>([]);
     const { data, setData, post, put, processing, errors } = useForm({
         title: "",
         description: "",
@@ -119,7 +119,7 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
             );
 
             if (isExistingElement) {
-                setDElement((prev: any) => {
+                setDProducts((prev: any) => {
                     const updatedElements = [...prev, dElement];
                     setData("deleted_elements", updatedElements);
                     return updatedElements;

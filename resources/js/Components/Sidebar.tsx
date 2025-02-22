@@ -107,7 +107,7 @@ const Sidebar: React.FC = () => {
                 </Collapse>
                 <Divider />
 
-                <ListItem disablePadding>
+                {/* <ListItem disablePadding>
                     <ListItemButton onClick={() => toggleMenu('meals')}>
                         <ListItemIcon>
                             <Money />
@@ -126,8 +126,8 @@ const Sidebar: React.FC = () => {
                         </ListItemButton>
                     </List>
                 </Collapse>
-                <Divider />
-                <ListItem disablePadding>
+                <Divider /> */}
+                {/* <ListItem disablePadding>
                     <ListItemButton onClick={() => toggleMenu('accounting')}>
                         <ListItemIcon>
                             <Money />
@@ -172,7 +172,7 @@ const Sidebar: React.FC = () => {
                         </ListItemButton>
                     </List>
                 </Collapse>
-                <Divider />
+                <Divider /> */}
             </List>
         </Box>
     );

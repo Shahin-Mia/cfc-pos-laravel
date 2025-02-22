@@ -46,7 +46,7 @@ export default function Drowpdown({
                 >
                     <MenuItem onClick={handleClose}>Dashboard</MenuItem>
                 </Link>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                {/* <MenuItem onClick={handleClose}>My account</MenuItem> */}
 
                 <Link
                     href={route("logout")}
