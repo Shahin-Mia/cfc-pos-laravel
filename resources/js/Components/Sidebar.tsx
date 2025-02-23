@@ -49,6 +49,7 @@ const Sidebar: React.FC = () => {
                 height: "100%",
                 bgcolor: 'background.paper',
                 borderRight: "1px solid grey",
+                overflow: "auto"
             }}
         >
             <List>
@@ -73,6 +74,9 @@ const Sidebar: React.FC = () => {
                 </ListItem>
                 <Collapse in={open.elements} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
+                        <ListItemButton component={Link} href={route("element-categories.index")} sx={{ pl: 4 }}>
+                            <ListItemText primary="Element categories" />
+                        </ListItemButton>
                         <ListItemButton component={Link} href={route("elements.index")} sx={{ pl: 4 }}>
                             <ListItemText primary="Elements" />
                         </ListItemButton>
@@ -107,7 +111,7 @@ const Sidebar: React.FC = () => {
                 </Collapse>
                 <Divider />
 
-                {/* <ListItem disablePadding>
+                <ListItem disablePadding>
                     <ListItemButton onClick={() => toggleMenu('meals')}>
                         <ListItemIcon>
                             <Money />
@@ -119,15 +123,15 @@ const Sidebar: React.FC = () => {
                 <Collapse in={open.meals} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
                         <ListItemButton component={Link} href={route("meal-categories.index")} sx={{ pl: 4 }}>
-                            <ListItemText primary="Category" />
+                            <ListItemText primary="Meal categories" />
                         </ListItemButton>
                         <ListItemButton component={Link} href={route("meals.index")} sx={{ pl: 4 }}>
-                            <ListItemText primary="Item" />
+                            <ListItemText primary="Meal items" />
                         </ListItemButton>
                     </List>
                 </Collapse>
-                <Divider /> */}
-                {/* <ListItem disablePadding>
+                <Divider />
+                <ListItem disablePadding>
                     <ListItemButton onClick={() => toggleMenu('accounting')}>
                         <ListItemIcon>
                             <Money />
@@ -172,7 +176,7 @@ const Sidebar: React.FC = () => {
                         </ListItemButton>
                     </List>
                 </Collapse>
-                <Divider /> */}
+                <Divider />
             </List>
         </Box>
     );

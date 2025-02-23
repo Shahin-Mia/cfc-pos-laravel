@@ -16,10 +16,10 @@ class MealCategory extends Model
         "updated_by"
     ];
 
-    // public function meals()
-    // {
-    //     $this->hasMany(Meal::class);
-    // }
+    public function meals()
+    {
+        $this->hasMany(Meal::class);
+    }
 
     public function image()
     {

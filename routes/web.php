@@ -9,6 +9,7 @@ use App\Http\Controllers\Dashboard\UnitController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\Dashboard\MealCategoryController;
 use App\Http\Controllers\Dashboard\MealController;
+use App\Http\Controllers\Dashboard\ElementCategoryController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource("/elements", ElementController::class);
         Route::resource("/productions", ProductionController::class);
         Route::resource("/meals", MealController::class);
+        Route::resource("/element-categories", ElementCategoryController::class);
 
         Route::post("/products/{product_id}", [ProductController::class, "update"])
             ->name("products.update");

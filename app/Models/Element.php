@@ -11,6 +11,7 @@ class Element extends Model
 
     protected $fillable = [
         'title',
+        'element_category_id',
         'description',
         'created_by'
     ];
@@ -18,5 +19,9 @@ class Element extends Model
     public function stock()
     {
         return $this->morphOne(Stock::class, 'stockable');
+    }
+    public function elementCategory()
+    {
+        return $this->hasOne(ElementCategory::class, "id", "element_category_id");
     }
 }

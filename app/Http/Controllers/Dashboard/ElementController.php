@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Element;
+use App\Models\ElementCategory;
 use App\Models\Unit;
 use Exception;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class ElementController extends Controller
      */
     public function index()
     {
-        $elements = Element::with(["stock", "stock.purchaseUnit"])->paginate(15);
+        $elements = Element::with(["stock", "stock.purchaseUnit", "elementCategory"])->paginate(15);
         return Inertia::render("Elements", [
             "elements" => $elements
         ]);
@@ -28,9 +29,10 @@ class ElementController extends Controller
     public function create()
     {
         $units = Unit::all();
-
+        $elementCategories = ElementCategory::all();
         return Inertia::render("ElementForm", [
-            "units" => $units
+            "units" => $units,
+            "elementCategories" => $elementCategories
         ]);
     }
 
@@ -43,6 +45,7 @@ class ElementController extends Controller
             $vElement = $request->validate([
                 'title' => 'required|max:255',
                 'description' => 'nullable|max:2000',
+                'element_category_id' => 'required',
             ]);
 
             $vStock = $request->validate([
@@ -83,10 +86,13 @@ class ElementController extends Controller
         try {
             $element = Element::with(["stock"])->findOrFail($id);
             $units = Unit::all();
+            $elementCategories = ElementCategory::all();
 
             return Inertia::render("ElementForm", [
                 "element" => $element,
-                "units" => $units
+                "units" => $units,
+                "elementCategories" => $elementCategories
+
             ]);
         } catch (Exception $e) {
             return redirect()->route("elements.index")->with("error", $e->getMessage());
@@ -103,6 +109,7 @@ class ElementController extends Controller
             $vElement = $request->validate([
                 'title' => 'required|max:255',
                 'description' => 'nullable|max:2000',
+                'element_category_id' => 'required',
             ]);
 
             $vStock = $request->validate([

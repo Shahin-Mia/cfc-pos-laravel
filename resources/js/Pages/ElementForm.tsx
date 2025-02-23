@@ -15,6 +15,7 @@ import {
     SnackbarCloseReason,
     Snackbar,
     Alert,
+    Stack,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import DashboardLayout from "@/Layouts/DashboardLayout";
@@ -37,6 +38,11 @@ interface ElementType {
     stock: Stock;
 }
 
+interface ElementCategory {
+    id: number;
+    name: string;
+}
+
 interface Unit {
     id: number;
     name: string;
@@ -44,15 +50,17 @@ interface Unit {
 
 interface ElementProps {
     element: ElementType,
+    elementCategories: ElementCategory[];
     units: Unit[];
     flash: any;
 }
 
-const ElementForm: React.FC<ElementProps> = ({ element, units, flash }) => {
+const ElementForm: React.FC<ElementProps> = ({ element, elementCategories, units, flash }) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const { data, setData, post, put, processing, errors } = useForm({
         title: "",
         description: "",
+        element_category_id: "",
         purchase_unit_id: "",
         purchase_price: "",
         opening_stock: "",
@@ -87,7 +95,6 @@ const ElementForm: React.FC<ElementProps> = ({ element, units, flash }) => {
         }
 
         if (flash.success || flash.error) {
-            console.log(flash);
             setOpenSnackbar(true);
         }
     }, [flash, element]);
@@ -132,16 +139,30 @@ const ElementForm: React.FC<ElementProps> = ({ element, units, flash }) => {
                     <form onSubmit={handleSubmit}>
                         <Grid container spacing={2}>
                             <Grid size={{ xs: 12, md: 6 }}>
-                                <TextField
-                                    label="Title*"
-                                    value={data.title}
-                                    onChange={(e) => setData("title", e.target.value)}
-                                    fullWidth
-                                    required
-                                    error={!!errors.title}
-                                    helperText={errors.title}
-                                    size="small"
-                                />
+                                <Stack spacing={1}>
+                                    <TextField
+                                        label="Title*"
+                                        value={data.title}
+                                        onChange={(e) => setData("title", e.target.value)}
+                                        fullWidth
+                                        required
+                                        error={!!errors.title}
+                                        helperText={errors.title}
+                                        size="small"
+                                    />
+                                    <FormControl fullWidth size="small" error={!!errors.element_category_id}>
+                                        <InputLabel>Element category*</InputLabel>
+                                        <Select
+                                            value={data.element_category_id}
+                                            onChange={(e) => setData("element_category_id", e.target.value)}
+                                            label="Element Category*"
+                                        >
+                                            {elementCategories.map((category) => (
+                                                <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Stack>
                             </Grid>
                             <Grid size={{ xs: 12, md: 6 }}>
                                 <TextField
@@ -150,7 +171,7 @@ const ElementForm: React.FC<ElementProps> = ({ element, units, flash }) => {
                                     onChange={(e) => setData("description", e.target.value)}
                                     fullWidth
                                     multiline
-                                    rows={2}
+                                    rows={3}
                                     size="small"
                                     error={!!errors.description}
                                     helperText={errors.description}

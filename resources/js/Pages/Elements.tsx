@@ -166,6 +166,7 @@ const ElementsPage: React.FC<Props> = ({ elements, flash }) => {
                                     <TableRow>
                                         <TableCell>#</TableCell>
                                         <TableCell size="small">Title</TableCell>
+                                        <TableCell size="small">Category</TableCell>
                                         <TableCell size="small">Unit <br />P.Price</TableCell>
                                         <TableCell size="small">Opening <br />Stock</TableCell>
                                         <TableCell size="small">Current <br />Stock</TableCell>
@@ -180,6 +181,7 @@ const ElementsPage: React.FC<Props> = ({ elements, flash }) => {
                                         <TableRow key={element.id}>
                                             <TableCell>{elements.per_page * (elements.current_page - 1) + index + 1}</TableCell>
                                             <TableCell>{element.title}</TableCell>
+                                            <TableCell>{element.element_category.name}</TableCell>
                                             <TableCell>
                                                 {element.stock.purchase_price.toFixed(2)} |{" "}
                                                 <Typography variant="caption">{element.stock.purchase_unit.name}</Typography>
