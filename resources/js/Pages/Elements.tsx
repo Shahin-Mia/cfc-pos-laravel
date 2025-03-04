@@ -104,9 +104,9 @@ const ElementsPage: React.FC<Props> = ({ elements, flash }) => {
         handleMenuClose();
     };
 
-    // const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    //     Inertia.get(route("elements.index"), { page }, { preserveState: true });
-    // };
+    const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+        router.get(route("elements.index"), { page }, { preserveState: true });
+    };
     const handleClose = (event: SyntheticEvent<Element, Event> | Event, reason?: SnackbarCloseReason) => {
         if (reason === 'clickaway') {
             return;
@@ -234,7 +234,7 @@ const ElementsPage: React.FC<Props> = ({ elements, flash }) => {
                             <Pagination
                                 count={elements.last_page}
                                 page={elements.current_page}
-                                // onChange={handlePageChange}
+                                onChange={handlePageChange}
                                 color="primary"
                             />
                         </Box>

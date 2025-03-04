@@ -52,6 +52,7 @@ export default function Login({
                                 error={errors.email ? true : false}
                                 helperText={errors.email}
                                 sx={{ width: '100%' }}
+                                required
                             />
                         </div>
 
@@ -69,6 +70,7 @@ export default function Login({
                                 error={errors.password ? true : false}
                                 helperText={errors.password}
                                 sx={{ width: '100%', mt: 1 }}
+                                required
                             />
                         </div>
 

@@ -103,7 +103,7 @@ const UnitManagement: React.FC<Props> = ({ units }) => {
                 {/* Show All Units Table */}
                 <Paper sx={{ padding: 1 }}>
                     <TableContainer>
-                        <Table sx={{ minWidth: 650 }}>
+                        <Table sx={{ minWidth: 650 }} size='small'>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>#</TableCell>
@@ -124,10 +124,11 @@ const UnitManagement: React.FC<Props> = ({ units }) => {
                                                 color="info"
                                                 onClick={() => handleEdit(unit)}
                                                 sx={{ marginRight: 1 }}
+                                                size='small'
                                             >
                                                 Edit
                                             </Button>
-                                            <Button variant="outlined" color="error" onClick={() => handleDelete(unit.id)}>
+                                            <Button size='small' variant="outlined" color="error" onClick={() => handleDelete(unit.id)}>
                                                 Delete
                                             </Button>
                                         </TableCell>

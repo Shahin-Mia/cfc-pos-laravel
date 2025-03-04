@@ -29,10 +29,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource("/categories", CategoryController::class)->except(["create", "show", "edit"]);
         Route::resource("/products", ProductController::class)->except(["update"]);
         Route::resource("/meal-categories", MealCategoryController::class)->except(["create", "show", "edit", "update"]);
-        Route::resource("/elements", ElementController::class);
-        Route::resource("/productions", ProductionController::class);
+        // Route::resource("/elements", ElementController::class);
+        // Route::resource("/productions", ProductionController::class);
         Route::resource("/meals", MealController::class);
-        Route::resource("/element-categories", ElementCategoryController::class);
+        // Route::resource("/element-categories", ElementCategoryController::class);
 
         Route::post("/products/{product_id}", [ProductController::class, "update"])
             ->name("products.update");

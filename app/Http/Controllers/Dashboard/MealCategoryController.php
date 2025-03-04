@@ -28,12 +28,12 @@ class MealCategoryController extends Controller
      */
     public function store(Request $request)
     {
+        $validatedData = $request->validate([
+            "name" => "required|max:255",
+            "description" => "required|max:2000",
+            "image" => "required|image|max:2048|mimes:png,webp,bmp"
+        ]);
         try {
-            $validatedData = $request->validate([
-                "name" => "required|max:255",
-                "description" => "nullable|max:2000",
-                "image" => "required|image|max:2048|mimes:png,webp,bmp"
-            ]);
 
             $imagePath = $request->file("image")->store("product_images", "public");
 
@@ -55,12 +55,12 @@ class MealCategoryController extends Controller
      */
     public function update(Request $request, $meal_category_id)
     {
+        $validatedData = $request->validate([
+            "name" => "nullable|max:255",
+            "description" => "nullable|max:2000",
+            "image" => "nullable|image|max:2048|mimes:png,webp,bmp"
+        ]);
         try {
-            $validatedData = $request->validate([
-                "name" => "nullable|max:255",
-                "description" => "nullable|max:2000",
-                "image" => "nullable|image|max:2048|mimes:png,webp,bmp"
-            ]);
 
             $mealCategory = MealCategory::findOrFail($meal_category_id);
 

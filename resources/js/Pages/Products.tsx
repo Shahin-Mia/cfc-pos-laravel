@@ -1,5 +1,5 @@
 import React, { SyntheticEvent, useEffect, useState } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import {
     Box,
     Button,
@@ -55,9 +55,7 @@ const Products: React.FC<any> = ({ products, flash }) => {
     };
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-        const query = new URLSearchParams(window.location.search);
-        query.set("page", page.toString());
-        window.location.href = `${window.location.pathname}?${query.toString()}`;
+        router.get(route("products.index"), { page }, { preserveState: true });
     };
 
     const handleClose = (event: SyntheticEvent<Element, Event> | Event, reason?: SnackbarCloseReason) => {
@@ -103,14 +101,14 @@ const Products: React.FC<any> = ({ products, flash }) => {
                             <TableCell>#</TableCell>
                             <TableCell>Title</TableCell>
                             <TableCell>P.Price</TableCell>
-                            <TableCell>S.Price</TableCell>
+                            {/* <TableCell>S.Price</TableCell> */}
                             <TableCell>StockQty</TableCell>
-                            <TableCell>Img</TableCell>
+                            {/* <TableCell>Img</TableCell> */}
                             <TableCell>Description</TableCell>
-                            <TableCell>Serial</TableCell>
-                            <TableCell>Barcode</TableCell>
+                            {/* <TableCell>Serial</TableCell>
+                            <TableCell>Barcode</TableCell> */}
                             <TableCell>Category</TableCell>
-                            <TableCell>Avail.</TableCell>
+                            <TableCell align="center">Avail.</TableCell>
                             <TableCell>Action</TableCell>
                         </TableRow>
                     </TableHead>
@@ -122,18 +120,18 @@ const Products: React.FC<any> = ({ products, flash }) => {
                                 </TableCell>
                                 <TableCell>{product.title}</TableCell>
                                 <TableCell>
-                                    {product.stock.purchase_price.toFixed(2)}|
-                                    {product.stock.purchase_unit.name}
+                                    {product.stock.purchase_price?.toFixed(2)}|
+                                    {product.stock.purchase_unit?.name}
                                 </TableCell>
-                                <TableCell>
-                                    {product.stock.sale_price.toFixed(2)}|
-                                    {product.stock.sale_unit.name}
-                                </TableCell>
+                                {/* <TableCell>
+                                    {product.stock.sale_price?.toFixed(2)}|
+                                    {product.stock.sale_unit?.name}
+                                </TableCell> */}
                                 <TableCell>
                                     {product.stock.stock}|
                                     {product.stock.sale_unit.name}
                                 </TableCell>
-                                <TableCell>
+                                {/* <TableCell>
                                     <Tooltip title="View Image">
                                         <Avatar
                                             src={`/storage/${product.image.image}`}
@@ -141,7 +139,7 @@ const Products: React.FC<any> = ({ products, flash }) => {
                                             sx={{ width: 40, height: 40 }}
                                         />
                                     </Tooltip>
-                                </TableCell>
+                                </TableCell> */}
                                 <TableCell>
                                     <Typography
                                         variant="body2"
@@ -157,8 +155,8 @@ const Products: React.FC<any> = ({ products, flash }) => {
                                         {product.description}
                                     </Typography>
                                 </TableCell>
-                                <TableCell>{product.model_no}</TableCell>
-                                <TableCell>{product.barcode}</TableCell>
+                                {/* <TableCell>{product.model_no}</TableCell>
+                                <TableCell>{product.barcode}</TableCell> */}
                                 <TableCell>
                                     {product.category?.name}
                                     {product.sub_category?.name && (
@@ -168,7 +166,7 @@ const Products: React.FC<any> = ({ products, flash }) => {
                                         </>
                                     )}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell align="center">
                                     {product.is_available ? (
                                         <Badge color="success" badgeContent="Yes" />
                                     ) : (

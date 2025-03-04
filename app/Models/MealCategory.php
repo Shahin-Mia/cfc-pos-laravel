@@ -18,7 +18,7 @@ class MealCategory extends Model
 
     public function meals()
     {
-        $this->hasMany(Meal::class);
+        return $this->hasMany(Meal::class);
     }
 
     public function image()

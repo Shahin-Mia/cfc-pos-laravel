@@ -28,21 +28,39 @@ import {
 import Grid from "@mui/material/Grid2";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DashboardLayout from "@/Layouts/DashboardLayout";
+import { VisuallyHiddenInput } from "@/Components/VisuallyHiddenInput";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 
-const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
+
+interface FormData {
+    title: string,
+    description: string,
+    sale_unit_id: number,
+    meal_category_id: number,
+    purchase_price: number,
+    sale_price: number | string,
+    image: File | null,
+    is_available: number,
+    products_selected: any[],
+    deleted_products: any[]
+}
+
+const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash }) => {
+    console.log(products);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [d_products, setDProducts] = useState<any>([]);
-    const { data, setData, post, put, processing, errors } = useForm({
+    const { data, setData, post, put, processing, errors } = useForm<FormData>({
         title: "",
         description: "",
-        meal_category_id: "",
-        purchase_price: "",
+        sale_unit_id: 0,
+        meal_category_id: 0,
+        purchase_price: 0,
         sale_price: "",
         image: null,
-        is_available: "",
-        products_selected: [] as any,
-        ...(meal && { deleted_products: [] as any })
+        is_available: 0,
+        products_selected: [],
+        deleted_products: []
     });
 
     useEffect(() => {
@@ -77,41 +95,41 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
         }
     }, [flash])
 
-    const [elementSearch, setElementSearch] = useState("");
-    const [filteredElements, setFilteredElements] = useState<any>([]);
+    const [productSearch, setProductSearch] = useState("");
+    const [filteredProducts, setFilteredProducts] = useState<any>([]);
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value) {
-            setElementSearch(e.target.value);
-            setFilteredElements(
+            setProductSearch(e.target.value);
+            setFilteredProducts(
                 products.filter((el: any) =>
                     el.title.toLowerCase().includes(e.target.value.toLowerCase())
                 )
             );
         } else {
-            setElementSearch("");
-            setFilteredElements([]);
+            setProductSearch("");
+            setFilteredProducts([]);
         }
     };
 
-    const addElement = (element: any) => {
-        if (!data.elements_selected.some((el: any) => el.id === element.id)) {
-            setData("elements_selected", [
-                ...data.elements_selected,
-                { ...element, quantity: 1, total_price: element.stock.purchase_price },
+    const addProduct = (product: any) => {
+        if (!data.products_selected.some((el: any) => el.id === product.id)) {
+            setData("products_selected", [
+                ...data.products_selected,
+                { ...product, quantity: 1, total_price: product.stock.purchase_price },
             ]);
         }
     };
 
     const updateQuantity = (index: number, quantity: number) => {
-        const updatedElements = [...data.elements_selected];
+        const updatedElements = [...data.products_selected];
         updatedElements[index].quantity = quantity;
         updatedElements[index].total_price =
             quantity * updatedElements[index].stock.purchase_price;
-        setData("elements_selected", updatedElements);
+        setData("products_selected", updatedElements);
     };
 
     const deleteElement = (index: number) => {
-        const dElement = data.elements_selected.find((_: any, i: number) => i === index);
+        const dElement = data.products_selected.find((_: any, i: number) => i === index);
 
         if (meal && dElement) {
             const isExistingElement = meal.production_elements.some(
@@ -121,38 +139,36 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
             if (isExistingElement) {
                 setDProducts((prev: any) => {
                     const updatedElements = [...prev, dElement];
-                    setData("deleted_elements", updatedElements);
+                    setData("deleted_products", updatedElements);
                     return updatedElements;
                 });
             }
         }
-
-        setData(
-            "elements_selected",
-            data.elements_selected.filter((_: any, i: number) => i !== index)
-        );
+        const products = data.products_selected.filter((_: any, i: number) => i !== index);
+        setData("products_selected", products);
     };
 
 
     const calculateProduction = () => {
-        const totalPrice = data.elements_selected.reduce(
+        const totalPrice = data.products_selected.reduce(
             (sum: any, el: any) => sum + el.total_price,
             0
         );
-        setData("production_price", totalPrice.toString());
+        setData("purchase_price", totalPrice.toString());
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const totalPrice = data.elements_selected.reduce(
+        const totalPrice = data.products_selected.reduce(
             (sum: any, el: any) => sum + el.total_price,
             0
         );
-        if (totalPrice === Number(data.production_price)) {
+        if (totalPrice === Number(data.purchase_price)) {
             if (meal) {
                 put(route("productions.update", meal.id));
             } else {
-                post(route("productions.store"));
+                post(route("meals.store"));
+                // console.log(data);
             }
         } else {
             flash.error = "Calculate meal cost!";
@@ -169,7 +185,7 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
 
     return (
         <DashboardLayout>
-            <Head title="Production" />
+            <Head title="Meal" />
             <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
                 <Alert
                     onClose={handleClose}
@@ -184,8 +200,8 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
                 <Typography variant="h5">
                     {
                         meal ?
-                            "Production Edit" :
-                            "Production Create"
+                            "Meal Edit" :
+                            "Meal Create"
                     }
                 </Typography>
                 <Button variant="contained" size="small" color="secondary" component={Link} href={route("productions.index")}>Go Back</Button>
@@ -217,25 +233,26 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
                             </Grid>
                             <Grid size={{ xs: 12 }}>
                                 <TextField
-                                    label="Search Element"
-                                    value={elementSearch}
+                                    label="Search Products"
+                                    value={productSearch}
                                     onChange={handleSearchChange}
                                     fullWidth
                                     placeholder="Enter element title..."
                                     size="small"
+                                    type="search"
                                 />
                             </Grid>
                             <Grid size={{ xs: 12 }}>
-                                {filteredElements.length > 0 && (
+                                {filteredProducts.length > 0 && (
                                     <List dense>
-                                        {filteredElements.map((element: any) => (
+                                        {filteredProducts.map((product: any) => (
                                             <ListItem
-                                                key={element.id}
-                                                onClick={() => addElement(element)}
+                                                key={product.id}
+                                                onClick={() => addProduct(product)}
                                                 sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#eee" } }}
                                             >
                                                 <ListItemText>
-                                                    {element.title} (Price: {element.stock.purchase_price})
+                                                    {product.title} (Price: {product.stock.purchase_price})
                                                 </ListItemText>
                                             </ListItem>
                                         ))}
@@ -246,7 +263,7 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
                                         <TableRow>
                                             <TableCell>#</TableCell>
                                             <TableCell>Title</TableCell>
-                                            <TableCell>Current Stock</TableCell>
+                                            <TableCell>Unit</TableCell>
                                             <TableCell>Stock Price</TableCell>
                                             <TableCell>Qty</TableCell>
                                             <TableCell>Price</TableCell>
@@ -254,16 +271,16 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {data.elements_selected.map((element: any, index: number) => (
+                                        {data.products_selected.map((product: any, index: number) => (
                                             <TableRow key={index}>
                                                 <TableCell>{index + 1}</TableCell>
-                                                <TableCell>{element.title}</TableCell>
-                                                <TableCell>{element.stock.stock}</TableCell>
-                                                <TableCell>{element.stock.purchase_price}</TableCell>
+                                                <TableCell>{product.title}</TableCell>
+                                                <TableCell>{product.stock.purchase_unit.name}</TableCell>
+                                                <TableCell>{product.stock.purchase_price}</TableCell>
                                                 <TableCell>
                                                     <TextField
                                                         type="number"
-                                                        value={element.quantity}
+                                                        value={product.quantity}
                                                         onChange={(e) =>
                                                             updateQuantity(index, Number(e.target.value))
                                                         }
@@ -271,9 +288,11 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
                                                         fullWidth
                                                     />
                                                 </TableCell>
-                                                <TableCell>{element.total_price.toFixed(2)}</TableCell>
+                                                <TableCell>{product.total_price.toFixed(2)}</TableCell>
                                                 <TableCell>
-                                                    <IconButton onClick={() => deleteElement(index)}>
+                                                    <IconButton
+                                                        onClick={() => deleteElement(index)}
+                                                    >
                                                         <DeleteIcon color="error" />
                                                     </IconButton>
                                                 </TableCell>
@@ -285,7 +304,7 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
                             <Grid size={{ xs: 12 }}>
                                 <Box sx={{ width: "100%", display: 'flex', justifyContent: "end" }}>
                                     {
-                                        data.elements_selected.length > 0 && (
+                                        data.products_selected.length > 0 && (
                                             <Button
                                                 onClick={calculateProduction}
                                                 variant="contained"
@@ -302,12 +321,12 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
                                 <FormControl fullWidth size="small">
                                     <InputLabel>Unit*</InputLabel>
                                     <Select
-                                        value={data.unit_id}
-                                        onChange={(e) => setData("unit_id", e.target.value)}
+                                        value={data.sale_unit_id}
+                                        onChange={(e) => setData("sale_unit_id", Number(e.target.value))}
                                         label="Unit*"
                                     >
-                                        <MenuItem value="">Choose</MenuItem>
-                                        {mealCategories.map((unit: any) => (
+                                        <MenuItem value="0">Choose</MenuItem>
+                                        {units.map((unit: any) => (
                                             <MenuItem key={unit.id} value={unit.id}>
                                                 {unit.name}
                                             </MenuItem>
@@ -316,20 +335,27 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
                                 </FormControl>
                             </Grid>
                             <Grid size={{ xs: 12, md: 4 }}>
-                                <TextField
-                                    label="Quantity"
-                                    type="number"
-                                    value={data.quantity}
-                                    onChange={(e) => setData("quantity", e.target.value)}
-                                    fullWidth
-                                    size="small"
-                                />
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Categories*</InputLabel>
+                                    <Select
+                                        value={data.meal_category_id}
+                                        onChange={(e) => setData("meal_category_id", Number(e.target.value))}
+                                        label="Categories*"
+                                    >
+                                        <MenuItem value="0">Choose</MenuItem>
+                                        {mealCategories.map((cat: any) => (
+                                            <MenuItem key={cat.id} value={cat.id}>
+                                                {cat.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
                             </Grid>
                             <Grid size={{ xs: 12, md: 4 }}>
                                 <TextField
-                                    label="Production Price"
+                                    label="Purchase Price"
                                     type="number"
-                                    value={data.production_price}
+                                    value={data.purchase_price}
                                     fullWidth
                                     size="small"
                                     slotProps={{
@@ -339,14 +365,69 @@ const MealForm: React.FC<any> = ({ mealCategories, products, meal, flash }) => {
                                     }}
                                 />
                             </Grid>
-                            <Grid size={{ xs: 12, md: 6 }}>
-                                <Button type="submit" variant="contained" color="primary" disabled={processing} fullWidth>
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <TextField
+                                    label="Sale Price"
+                                    type="number"
+                                    value={data.sale_price}
+                                    onChange={(e) => setData("sale_price", e.target.value)}
+                                    fullWidth
+                                    size="small"
+                                    sx={{
+                                        "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+                                            display: "none",
+                                        },
+                                        MozAppearance: "textfield",
+                                    }}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Availability</InputLabel>
+                                    <Select
+                                        value={data.is_available}
+                                        onChange={(e) => setData('is_available', Number(e.target.value))}
+                                        label="Availability"
+                                    >
+                                        <MenuItem value="1">Available</MenuItem>
+                                        <MenuItem value="0">Not-Available</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <Button
+                                    component="label"
+                                    variant="outlined"
+                                    tabIndex={-1}
+                                    startIcon={<CloudUploadIcon />}
+                                    fullWidth
+                                >
+                                    Upload Image*
+                                    <VisuallyHiddenInput
+                                        type="file"
+                                        onChange={(event) => {
+                                            if (event.target.files && event.target.files[0]) {
+                                                setData("image", event.target.files[0]);
+                                            }
+                                        }}
+                                    />
+                                </Button>
+                                {errors.image && <Typography color="error" variant="caption">{errors.image}</Typography>}
+                            </Grid>
+                            <Grid size={{ xs: 12 }}>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    color="primary"
+                                    disabled={processing}
+
+                                >
                                     {
                                         processing ?
                                             <CircularProgress size={24} /> :
                                             meal ?
-                                                "Update Production" :
-                                                "Create Production"
+                                                "Update Meal" :
+                                                "Create Meal"
                                     }
                                 </Button>
                             </Grid>

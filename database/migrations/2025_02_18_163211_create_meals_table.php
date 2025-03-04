@@ -18,7 +18,7 @@ return new class extends Migration
             $table->double("sale_price", 10, 2); // single sale unit price
             $table->unsignedBigInteger("meal_category_id");
             $table->boolean('is_available')->default(1);
-            $table->text("description");
+            $table->text("description")->nullable();
             $table->unsignedBigInteger("created_by");
             $table->unsignedBigInteger("updated_by");
             $table->timestamps();

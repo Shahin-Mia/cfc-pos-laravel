@@ -30,20 +30,20 @@ interface ProductAddProps {
 
 interface FormData {
     title: string;
-    model: string;
-    barcode: string;
+    model?: string;
+    barcode?: string;
     category: string;
     sub_category: string;
     purchase_unit: string;
     purchase_price: string;
-    sale_unit: string;
-    sale_price: string;
-    conversion_rate: string;
+    sale_unit?: string;
+    sale_price?: string;
+    conversion_rate?: string;
     opening_stock: string;
     alert_quantity: string;
     availability: string;
     description: string;
-    image: File | null;
+    // image: File | null;
 }
 
 function ProductForm({
@@ -57,20 +57,20 @@ function ProductForm({
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const { data, setData, post, processing, errors } = useForm<FormData>({
         title: '',
-        model: '',
-        barcode: '',
+        // model: '',
+        // barcode: '',
         category: '',
         sub_category: '',
         purchase_unit: '',
         purchase_price: '',
-        sale_unit: '',
-        sale_price: '',
-        conversion_rate: '',
+        // sale_unit: '',
+        // sale_price: '',
+        // conversion_rate: '',
         opening_stock: '',
         alert_quantity: '',
         availability: '1',
         description: '',
-        image: null,
+        // image: null,
     });
 
 
@@ -88,15 +88,15 @@ function ProductForm({
                     case "purchase_price":
                         setData(key, production["price"]);
                         break;
-                    case "sale_unit":
-                        setData(key, production["unit_id"]);
-                        break;
-                    case "sale_price":
-                        setData(key, production["price"]);
-                        break;
-                    case "conversion_rate":
-                        setData(key, 1);
-                        break;
+                    // case "sale_unit":
+                    //     setData(key, production["unit_id"]);
+                    //     break;
+                    // case "sale_price":
+                    //     setData(key, production["price"]);
+                    //     break;
+                    // case "conversion_rate":
+                    //     setData(key, 1);
+                    //     break;
                     case "opening_stock":
                         setData(key, production["quantity"]);
                         break;
@@ -110,9 +110,9 @@ function ProductForm({
             const keys = Object.keys(data);
             keys.forEach((key: any) => {
                 switch (key) {
-                    case "model":
-                        setData(key, product["model_no"]);
-                        break;
+                    // case "model":
+                    //     setData(key, product["model_no"]);
+                    //     break;
                     case "category":
                         setData(key, product["category_id"]);
                         break;
@@ -125,15 +125,15 @@ function ProductForm({
                     case "purchase_price":
                         setData(key, product.stock[key]);
                         break;
-                    case "sale_unit":
-                        setData(key, product.stock["sale_unit_id"]);
-                        break;
-                    case "sale_price":
-                        setData(key, product.stock[key]);
-                        break;
-                    case "conversion_rate":
-                        setData(key, product.stock[key]);
-                        break;
+                    // case "sale_unit":
+                    //     setData(key, product.stock["sale_unit_id"]);
+                    //     break;
+                    // case "sale_price":
+                    //     setData(key, product.stock[key]);
+                    //     break;
+                    // case "conversion_rate":
+                    //     setData(key, product.stock[key]);
+                    //     break;
                     case "opening_stock":
                         setData(key, product.stock[key]);
                         break;
@@ -143,9 +143,9 @@ function ProductForm({
                     case "availability":
                         setData(key, product["is_available"]);
                         break;
-                    case "image":
-                        setData(key, null);
-                        break;
+                    // case "image":
+                    //     setData(key, null);
+                    //     break;
                     default:
                         setData(key, product[key]);
                 }
@@ -171,11 +171,11 @@ function ProductForm({
         }
     };
 
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setData('image', e.target.files[0]);
-        }
-    };
+    // const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    //     if (e.target.files && e.target.files[0]) {
+    //         setData('image', e.target.files[0]);
+    //     }
+    // };
 
     const handleClose = (event: SyntheticEvent<Element, Event> | Event, reason?: SnackbarCloseReason) => {
         if (reason === 'clickaway') {
@@ -222,7 +222,7 @@ function ProductForm({
                                         size="small"
                                     />
                                 </Grid>
-                                <Grid size={{ xs: 12, md: 4 }}>
+                                {/* <Grid size={{ xs: 12, md: 4 }}>
                                     <TextField
                                         label="Model/SL No"
                                         value={data.model}
@@ -240,7 +240,7 @@ function ProductForm({
                                         fullWidth
                                         size="small"
                                     />
-                                </Grid>
+                                </Grid> */}
                                 <Grid size={{ xs: 12, md: 4 }}>
                                     <FormControl fullWidth size="small">
                                         <InputLabel>Category</InputLabel>
@@ -256,7 +256,7 @@ function ProductForm({
                                         </Select>
                                     </FormControl>
                                 </Grid>
-                                <Grid size={{ xs: 12, md: 4 }}>
+                                <Grid size={{ xs: 12, md: 3 }}>
                                     <FormControl fullWidth size="small">
                                         <InputLabel>Sub-Category</InputLabel>
                                         <Select
@@ -298,7 +298,7 @@ function ProductForm({
                                         required
                                     />
                                 </Grid>
-                                <Grid size={{ xs: 12, md: 3 }}>
+                                {/* <Grid size={{ xs: 12, md: 3 }}>
                                     <FormControl fullWidth size="small">
                                         <InputLabel>Sale Unit*</InputLabel>
                                         <Select
@@ -340,7 +340,7 @@ function ProductForm({
                                         error={!!errors.conversion_rate}
                                         helperText={errors.conversion_rate}
                                     />
-                                </Grid>
+                                </Grid> */}
                                 <Grid size={{ xs: 12, md: 3 }}>
                                     <TextField
                                         label="Opening Stock*"
@@ -390,7 +390,7 @@ function ProductForm({
                                     />
                                 </Grid>
 
-                                <Grid size={{ xs: 12, md: 6 }}>
+                                {/* <Grid size={{ xs: 12, md: 6 }}>
                                     <Button
                                         variant="contained"
                                         component="label"
@@ -405,7 +405,7 @@ function ProductForm({
                                         />
                                     </Button>
                                     {errors.image && <Typography color="error" variant="caption">{errors.image}</Typography>}
-                                </Grid>
+                                </Grid> */}
 
                                 <Grid size={{ xs: 12, md: 6 }}>
                                     <Button

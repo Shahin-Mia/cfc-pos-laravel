@@ -8,6 +8,7 @@ class Meal extends Model
 {
     protected $fillable = [
         "title",
+        "sale_unit_id",
         "meal_category_id",
         "purchase_price",
         "sale_price",
@@ -19,16 +20,16 @@ class Meal extends Model
 
     public function image()
     {
-        $this->morphOne(Image::class, "imageable");
+        return $this->morphOne(Image::class, "imageable");
     }
 
     public function mealCategory()
     {
-        $this->hasOne(MealCategory::class, "id", "meal_category_id");
+        return $this->hasOne(MealCategory::class, "id", "meal_category_id");
     }
 
     public function mealProducts()
     {
-        $this->hasMany(MealProduct::class);
+        return $this->hasMany(MealProduct::class, 'meal_id');
     }
 }

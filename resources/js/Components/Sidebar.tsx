@@ -52,7 +52,7 @@ const Sidebar: React.FC = () => {
                 overflow: "auto"
             }}
         >
-            <List>
+            <List dense>
                 <ListItem disablePadding>
                     <ListItemButton component={Link} href="/dashboard">
                         <ListItemIcon>
@@ -63,7 +63,7 @@ const Sidebar: React.FC = () => {
                 </ListItem>
                 <Divider />
                 {/* Elements Menu */}
-                <ListItem disablePadding>
+                {/* <ListItem disablePadding>
                     <ListItemButton onClick={() => toggleMenu('elements')} divider>
                         <ListItemIcon>
                             <ListAlt />
@@ -73,7 +73,7 @@ const Sidebar: React.FC = () => {
                     </ListItemButton>
                 </ListItem>
                 <Collapse in={open.elements} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
+                    <List component="div" disablePadding dense>
                         <ListItemButton component={Link} href={route("element-categories.index")} sx={{ pl: 4 }}>
                             <ListItemText primary="Element categories" />
                         </ListItemButton>
@@ -84,7 +84,7 @@ const Sidebar: React.FC = () => {
                             <ListItemText primary="Production" />
                         </ListItemButton>
                     </List>
-                </Collapse>
+                </Collapse> */}
                 <Divider />
                 {/* Products Menu */}
                 <ListItem disablePadding>
@@ -97,7 +97,7 @@ const Sidebar: React.FC = () => {
                     </ListItemButton>
                 </ListItem>
                 <Collapse in={open.products} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
+                    <List component="div" disablePadding dense>
                         <ListItemButton component={Link} href={route("units.index")} sx={{ pl: 4 }}>
                             <ListItemText primary="Units" />
                         </ListItemButton>
@@ -121,7 +121,7 @@ const Sidebar: React.FC = () => {
                     </ListItemButton>
                 </ListItem>
                 <Collapse in={open.meals} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
+                    <List component="div" disablePadding dense>
                         <ListItemButton component={Link} href={route("meal-categories.index")} sx={{ pl: 4 }}>
                             <ListItemText primary="Meal categories" />
                         </ListItemButton>
@@ -141,7 +141,7 @@ const Sidebar: React.FC = () => {
                     </ListItemButton>
                 </ListItem>
                 <Collapse in={open.accounting} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
+                    <List component="div" disablePadding dense>
                         <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
                             <ListItemText primary="Sales" />
                         </ListItemButton>
@@ -164,7 +164,7 @@ const Sidebar: React.FC = () => {
                     </ListItemButton>
                 </ListItem>
                 <Collapse in={open.reports} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
+                    <List component="div" disablePadding dense>
                         <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
                             <ListItemText primary="Element Stock" />
                         </ListItemButton>
