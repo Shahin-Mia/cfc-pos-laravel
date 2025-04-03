@@ -129,7 +129,7 @@ const Products: React.FC<any> = ({ products, flash }) => {
                                 </TableCell> */}
                                 <TableCell>
                                     {product.stock.stock}|
-                                    {product.stock.sale_unit.name}
+                                    {product.stock.purchase_unit.name}
                                 </TableCell>
                                 {/* <TableCell>
                                     <Tooltip title="View Image">

@@ -31,7 +31,6 @@ const Meals: React.FC<any> = ({ meals, flash }) => {
     const { delete: destroy, processing } = useForm();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [menuProductId, setMenuProductId] = React.useState<number | null>(null);
-    console.log(meals);
     useEffect(() => {
         if (flash.success || flash.error) {
             setOpenSnackbar(true);
@@ -48,7 +47,7 @@ const Meals: React.FC<any> = ({ meals, flash }) => {
     };
 
     const handleDelete = (id: number) => {
-        destroy(route("products.destroy", id), {
+        destroy(route("meals.destroy", id), {
             preserveScroll: true,
         });
         handleMenuClose();
@@ -107,7 +106,7 @@ const Meals: React.FC<any> = ({ meals, flash }) => {
                             <TableCell>Img</TableCell>
                             <TableCell>Description</TableCell>
                             <TableCell>Category</TableCell>
-                            <TableCell>Avail.</TableCell>
+                            <TableCell align="center">Avail.</TableCell>
                             <TableCell>Action</TableCell>
                         </TableRow>
                     </TableHead>
@@ -117,7 +116,7 @@ const Meals: React.FC<any> = ({ meals, flash }) => {
                                 <TableCell>
                                     {(meals.current_page - 1) * meals.per_page + index + 1}
                                 </TableCell>
-                                <TableCell>{meals.title}</TableCell>
+                                <TableCell>{meal.title}</TableCell>
                                 <TableCell>
                                     {meal.purchase_price.toFixed(2)}
                                 </TableCell>
@@ -130,6 +129,7 @@ const Meals: React.FC<any> = ({ meals, flash }) => {
                                             src={`/storage/${meal.image.image}`}
                                             alt="Meal Image"
                                             sx={{ width: 40, height: 40 }}
+                                            variant="square"
                                         />
                                     </Tooltip>
                                 </TableCell>
@@ -149,9 +149,9 @@ const Meals: React.FC<any> = ({ meals, flash }) => {
                                     </Typography>
                                 </TableCell>
                                 <TableCell>
-                                    {meal.mealCategory?.name}
+                                    {meal.meal_category?.name}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell align="center">
                                     {meal.is_available ? (
                                         <Badge color="success" badgeContent="Yes" />
                                     ) : (
@@ -171,7 +171,7 @@ const Meals: React.FC<any> = ({ meals, flash }) => {
                                     >
                                         <MenuItem
                                             component={Link}
-                                            href={route("products.edit", meal.id)}
+                                            href={route("meals.edit", meal.id)}
                                         >
                                             Edit/View
                                         </MenuItem>

@@ -13,8 +13,9 @@ class OrderController extends Controller
         return Inertia::render("Orders");
     }
 
-    public function orderComplete()
+    public function orderComplete(Request $request)
     {
+        dd($request->all());
         return Inertia::render('OrderComplete');
     }
 }

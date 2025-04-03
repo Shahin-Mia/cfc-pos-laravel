@@ -22,9 +22,6 @@ export default function Modal({
     setProduct,
     setDiscount
 }: any) {
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
 
     const handleClose = () => {
         setProduct(null);
@@ -109,6 +106,7 @@ export default function Modal({
                                     label="Comment"
                                     type="text"
                                     fullWidth
+                                    defaultValue={product.comment}
                                 />
                             </>
                         ) : (

@@ -1,4 +1,4 @@
-import React, { SyntheticEvent, useEffect, useState } from "react";
+import React, { SyntheticEvent, useEffect, useMemo, useState } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import {
     Button,
@@ -47,7 +47,6 @@ interface FormData {
 }
 
 const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash }) => {
-    console.log(products);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [d_products, setDProducts] = useState<any>([]);
     const { data, setData, post, put, processing, errors } = useForm<FormData>({
@@ -63,38 +62,36 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
         deleted_products: []
     });
 
+
     useEffect(() => {
-        // if (meal) {
-        //     const keys = Object.keys(data);
-        //     keys.forEach((key: any) => {
-        //         switch (key) {
-        //             case "elements_selected":
-        //                 let selectedElements: any = [];
-        //                 meal.production_elements.forEach((item: any) => {
-        //                     let modItem = {
-        //                         ...item.element,
-        //                         ...item,
-        //                         total_price: item.price,
-        //                         production_element_id: item.id
-        //                     }
-        //                     selectedElements.push(modItem);
-        //                 });
-        //                 setData(key, selectedElements);
-        //                 break;
-        //             case "production_price":
-        //                 setData(key, meal["price"]);
-        //                 break;
-        //             default:
-        //                 setData(key, meal[key]);
-        //         }
-        //     });
-        // }
+        if (meal) {
+            const keys = Object.keys(data);
+            keys.forEach((key: any) => {
+                switch (key) {
+                    case "products_selected":
+                        let selectedProducts: any = [];
+                        meal.meal_products.forEach((item: any) => {
+                            let modItem = {
+                                title: item.product.title,
+                                stock: item.product.stock,
+                                quantity: item.quantity,
+                                total_price: item.price,
+                                meal_product_id: item.id,
+                                id: item.product_id
+                            }
+                            selectedProducts.push(modItem);
+                        });
+                        setData(key, selectedProducts);
+                        break;
+                    default:
+                        setData(key, meal[key]);
+                }
+            });
+        }
         if (flash.success || flash.error) {
-            console.log(flash);
             setOpenSnackbar(true);
         }
-    }, [flash])
-
+    }, [flash]);
     const [productSearch, setProductSearch] = useState("");
     const [filteredProducts, setFilteredProducts] = useState<any>([]);
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,10 +127,9 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
 
     const deleteElement = (index: number) => {
         const dElement = data.products_selected.find((_: any, i: number) => i === index);
-
         if (meal && dElement) {
-            const isExistingElement = meal.production_elements.some(
-                (item: any) => item.id === dElement.id
+            const isExistingElement = meal.meal_products.some(
+                (item: any) => item.id === dElement.meal_product_id
             );
 
             if (isExistingElement) {
@@ -142,12 +138,12 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                     setData("deleted_products", updatedElements);
                     return updatedElements;
                 });
+
             }
         }
         const products = data.products_selected.filter((_: any, i: number) => i !== index);
         setData("products_selected", products);
     };
-
 
     const calculateProduction = () => {
         const totalPrice = data.products_selected.reduce(
@@ -157,6 +153,8 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
         setData("purchase_price", totalPrice.toString());
     };
 
+    const totalPrice = useMemo(calculateProduction, [data.products_selected]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const totalPrice = data.products_selected.reduce(
@@ -165,10 +163,9 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
         );
         if (totalPrice === Number(data.purchase_price)) {
             if (meal) {
-                put(route("productions.update", meal.id));
+                post(route("meals.update", meal.id));
             } else {
                 post(route("meals.store"));
-                // console.log(data);
             }
         } else {
             flash.error = "Calculate meal cost!";
@@ -204,7 +201,15 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                             "Meal Create"
                     }
                 </Typography>
-                <Button variant="contained" size="small" color="secondary" component={Link} href={route("productions.index")}>Go Back</Button>
+                <Button
+                    variant="contained"
+                    size="small"
+                    color="secondary"
+                    component={Link}
+                    href={route("meals.index")}
+                >
+                    Go Back
+                </Button>
             </Grid>
             <Card>
                 <CardContent>
@@ -266,7 +271,7 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                                             <TableCell>Unit</TableCell>
                                             <TableCell>Stock Price</TableCell>
                                             <TableCell>Qty</TableCell>
-                                            <TableCell>Price</TableCell>
+                                            <TableCell width={150}>Price</TableCell>
                                             <TableCell>Action</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -285,7 +290,6 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                                                             updateQuantity(index, Number(e.target.value))
                                                         }
                                                         size="small"
-                                                        fullWidth
                                                     />
                                                 </TableCell>
                                                 <TableCell>{product.total_price.toFixed(2)}</TableCell>
@@ -301,7 +305,7 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                                     </TableBody>
                                 </Table>
                             </Grid>
-                            <Grid size={{ xs: 12 }}>
+                            {/* <Grid size={{ xs: 12 }}>
                                 <Box sx={{ width: "100%", display: 'flex', justifyContent: "end" }}>
                                     {
                                         data.products_selected.length > 0 && (
@@ -316,7 +320,7 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                                         )
                                     }
                                 </Box>
-                            </Grid>
+                            </Grid> */}
                             <Grid size={{ xs: 12, md: 4 }}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel>Unit*</InputLabel>
