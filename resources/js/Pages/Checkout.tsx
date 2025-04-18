@@ -10,7 +10,7 @@ import { SyntheticEvent, useEffect, useState } from "react";
 function Checkout() {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [message, setMessage] = useState<string>("");
-    const { cart, totalPrice } = useCart();
+    const { cart, totalPrice, setCart } = useCart();
     const { data, setData, post } = useForm({
         order_type: "",
         payment_method: "",
@@ -37,7 +37,11 @@ function Checkout() {
     };
 
     const handleSubmit = () => {
-        post(route("order.complete"));
+        post(route("order.complete"), {
+            onSuccess: () => {
+                setCart([]);
+            },
+        });
     }
 
     const handleClose = (event: SyntheticEvent<Element, Event> | Event, reason?: SnackbarCloseReason) => {

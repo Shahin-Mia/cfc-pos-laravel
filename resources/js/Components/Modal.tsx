@@ -24,7 +24,9 @@ export default function Modal({
 }: any) {
 
     const handleClose = () => {
-        setProduct(null);
+        if (product) {
+            setProduct(null);
+        }
         setOpen(false);
     };
 
@@ -49,7 +51,12 @@ export default function Modal({
             setCart(newCart);
             setProduct(null);
         } else {
-            setDiscount(formJson.discount);
+            const newDiscount = {
+                title: formJson.discount_title.toString(),
+                percentage: parseFloat(formJson.discount.toString()),
+            }
+            console.log(newDiscount);
+            setDiscount(newDiscount);
         }
         handleClose();
     }
@@ -110,17 +117,29 @@ export default function Modal({
                                 />
                             </>
                         ) : (
-                            <TextField
-                                autoFocus
-                                required
-                                margin="dense"
-                                name="discount"
-                                label="Discount"
-                                type="number"
-                                fullWidth
-                                variant="outlined"
-                                defaultValue={discount}
-                            />
+                            <>
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="dense"
+                                    name="discount_title"
+                                    label="Discount Title"
+                                    fullWidth
+                                    variant="outlined"
+                                    defaultValue={discount?.title}
+                                />
+                                <TextField
+                                    autoFocus
+                                    required
+                                    margin="dense"
+                                    name="discount"
+                                    label="Discount"
+                                    type="number"
+                                    fullWidth
+                                    variant="outlined"
+                                    defaultValue={discount?.percentage}
+                                />
+                            </>
                         )
                     }
                 </DialogContent>

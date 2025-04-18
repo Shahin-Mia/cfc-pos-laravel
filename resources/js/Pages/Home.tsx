@@ -8,7 +8,7 @@ import Modal from '@/Components/Modal';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useCart } from '@/utils/CartProvider';
 
-export default function Home({ Menus, Meals }: any) {
+export default function Home({ Menus, Meals, OpenSessionModal }: any) {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [message, setMessage] = useState<string>("");
     const [activeMenu, setActiveMenu] = useState<number>(1);
@@ -16,18 +16,21 @@ export default function Home({ Menus, Meals }: any) {
     const [activeCart, setActiveCart] = useState<boolean>(false);
     const [open, setOpen] = useState(false);
     const [product, setProduct] = useState<any>(null);
-    const { cart, setCart, totalPrice, setTotalPrice, discount, setDiscount } = useCart();
+    const { cart, setCart, setTotalPrice, discount, setDiscount } = useCart();
 
     const amount = useMemo(() => {
         let subtotal = cart.reduce((acc: any, item: any) => acc + item.quantity * item.sale_price, 0).toFixed(2);
-        if (discount > 0) {
-            subtotal -= subtotal * (discount / 100);
-            subtotal = subtotal.toFixed(2);
+        let discountAmount: any = 0;
+        if (discount.percentage > 0) {
+            discountAmount = (subtotal * (discount.percentage / 100)).toFixed(2);
         }
-        const tax = (subtotal * 0.06).toFixed(2);
-        const total = (parseFloat(subtotal) + parseFloat(tax)).toFixed(1);
-        return { subtotal, total };
-    }, [cart, discount]);
+        const discountedSubtotal = parseFloat(subtotal) - parseFloat(discountAmount);
+        const tax: any = (discountedSubtotal * 0.06).toFixed(2);
+        const total: any = (parseFloat(subtotal) + parseFloat(tax) - parseFloat(discountAmount)).toFixed(1);
+        const roundAmount = (parseFloat(total) - parseFloat(subtotal) - parseFloat(tax) + parseFloat(discountAmount)).toFixed(2);
+        console.log(roundAmount)
+        return { subtotal, total, tax, discountAmount, roundAmount };
+    }, [cart, discount.percentage]);
 
     useEffect(() => {
         const fetchMeals = Meals.filter((meal: any) => meal.meal_category_id === activeMenu);
@@ -243,16 +246,20 @@ export default function Home({ Menus, Meals }: any) {
                                                     <span>Sub total:</span>
                                                     <span>{amount.subtotal}</span>
                                                 </Typography>
+                                                <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <span>SST:</span>
+                                                    <span>(+6%) {amount.tax}</span>
+                                                </Typography>
                                                 {
-                                                    discount > 0 &&
+                                                    discount.percentage > 0 &&
                                                     <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                         <span>Discount:</span>
-                                                        <span>(-) {discount}%</span>
+                                                        <span>(-{discount.percentage}%) {amount.discountAmount} </span>
                                                     </Typography>
                                                 }
                                                 <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span>SST:</span>
-                                                    <span>(+) 6%</span>
+                                                    <span>Roundings:</span>
+                                                    <span>{amount.roundAmount}</span>
                                                 </Typography>
                                                 <Typography variant='h6' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <span>Total:</span>

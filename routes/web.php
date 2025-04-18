@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Checkout\CheckoutController;
+use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\UnitController;
 use App\Http\Controllers\Home\HomeController;
@@ -18,9 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post("/order-complete", [OrderController::class, "orderComplete"])->name('order.complete');
     Route::resource("/orders", OrderController::class);
     Route::get("/print-receipt", [ProductController::class, "printReceipt"])->name("print.receipt");
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name("dashboard");
+    Route::get('/dashboard', [DashboardController::class, "index"])->name("dashboard");
 
     Route::group(["prefix" => "dashboard"], function () {
         Route::resource("/units", UnitController::class)->except(["create", "show", "edit"]);

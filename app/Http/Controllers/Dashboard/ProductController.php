@@ -7,8 +7,6 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Production;
 use App\Models\Unit;
-use App\Services\PrinterService;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -20,7 +18,6 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function __construct(protected PrinterService $printerService) {}
 
     public function index()
     {
@@ -221,7 +218,7 @@ class ProductController extends Controller
                 $image->update(['image' => $imagePath]);
             }
 
-            return redirect()->route('products.index')->with('success', 'Product successfully updated.');
+            return redirect()->back()->with('success', 'Product successfully updated.');
         } catch (ValidationException $th) {
             return redirect()->route('products.edit', $product_id)->with('error', $th->getMessage());
         }
@@ -259,15 +256,5 @@ class ProductController extends Controller
             return;
         }
         return redirect()->route("products.index")->with('success', 'Product successfully deleted.');
-    }
-
-    public function printReceipt()
-    {
-        try {
-            $this->printerService->printReceipt('storage/images/logo.png');
-            return response()->json(['message' => 'Print job sent successfully!']);
-        } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
     }
 }

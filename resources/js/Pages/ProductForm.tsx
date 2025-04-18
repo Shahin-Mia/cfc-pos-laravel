@@ -203,7 +203,14 @@ function ProductForm({
                     <Typography variant="h6">
                         {product ? "Edit Product" : "Product Add"}
                     </Typography>
-                    <Button variant="contained" color="secondary" component={Link} href={route("products.index")}>Go Back</Button>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        component={Link}
+                        href={route("products.index")}
+                    >
+                        Go Back
+                    </Button>
                 </Grid>
 
                 <Card>

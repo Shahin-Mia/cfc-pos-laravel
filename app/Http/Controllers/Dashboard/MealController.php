@@ -60,7 +60,7 @@ class MealController extends Controller
         ]);
 
         try {
-            $imagePath = $request->file('image')->store('product_images', 'public');
+            $imagePath = $request->file('image')->store('meal_images', 'images');
 
             $meal = Meal::create([
                 'title' => $validatedData['title'],
@@ -178,11 +178,11 @@ class MealController extends Controller
 
                 // Delete old image
                 if ($image->image) {
-                    Storage::disk('public')->delete($image->image);
+                    Storage::disk('images')->delete($image->image);
                 }
 
                 // Store new image
-                $imagePath = $request->file('image')->store('product_images', 'public');
+                $imagePath = $request->file('image')->store('meal_images', 'images');
                 $image->update(['image' => $imagePath]);
             }
 
@@ -201,6 +201,11 @@ class MealController extends Controller
             $meal = Meal::findOrFail($id);
 
             if ($meal) {
+                // Delete image
+                if ($meal->image) {
+                    Storage::disk('images')->delete($meal->image->image);
+                    $meal->image()->delete();
+                }
                 MealProduct::where('meal_id', $meal->id)->delete();
                 $meal->delete();
 

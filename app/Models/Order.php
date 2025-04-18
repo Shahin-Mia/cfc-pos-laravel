@@ -19,4 +19,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class, "order_id");
     }
+
+    public function session()
+    {
+        return $this->belongsTo(PosSession::class, "pos_session_id");
+    }
 }
