@@ -12,7 +12,12 @@ class Order extends Model
         "order_type",
         "payment_method",
         "status",
-        "total_price"
+        "total_price",
+        "pos_session_id",
+        "subtotal",
+        "tax",
+        "discount_percentage",
+        "discount_title",
     ];
 
     public function orderItems(): HasMany

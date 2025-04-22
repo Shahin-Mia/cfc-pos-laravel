@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource("/orders", OrderController::class);
     Route::get("/print-receipt", [ProductController::class, "printReceipt"])->name("print.receipt");
     Route::get('/dashboard', [DashboardController::class, "index"])->name("dashboard");
+    Route::post("/save-cart", [HomeController::class, "saveCart"])->name("save.cart");
 
     Route::group(["prefix" => "dashboard"], function () {
         Route::resource("/units", UnitController::class)->except(["create", "show", "edit"]);

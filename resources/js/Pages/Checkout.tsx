@@ -1,6 +1,6 @@
 import PaymentModal from "@/Components/PaymentModal";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
-import { useCart } from "@/utils/CartProvider";
+import { useCartStore } from "@/store/useCartStore";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import { ChevronLeft } from "@mui/icons-material";
 import { Alert, Box, Button, Divider, FormControl, FormControlLabel, Paper, Radio, RadioGroup, Snackbar, SnackbarCloseReason, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
@@ -8,23 +8,26 @@ import Grid from "@mui/material/Grid2";
 import { SyntheticEvent, useEffect, useState } from "react";
 
 function Checkout() {
+    const cart = useCartStore((state: any) => state.cart);
+    const totalPrice = useCartStore((state: any) => state.totalPrice());
+    const subTotal = useCartStore((state: any) => state.subTotalPrice());
+    const tax = useCartStore((state: any) => state.tax());
+    const discount = useCartStore((state: any) => state.discount);
+    const discount_title = useCartStore((state: any) => state.discount_title);
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [open, setOpen] = useState(false);
     const [message, setMessage] = useState<string>("");
-    const { cart, totalPrice, setCart } = useCart();
-    const { data, setData, post } = useForm({
+    const { data, setData } = useForm({
+        tax: tax,
+        discount_percentage: discount,
+        discount_title: discount_title,
+        subtotal: subTotal,
         order_type: "",
         payment_method: "",
         total_price: totalPrice,
         cart: cart
     });
 
-    const [open, setOpen] = useState(false);
-
-    useEffect(() => {
-        if (cart.length <= 0) {
-            router.get(route("home"));
-        }
-    }, [cart])
 
     const handleMethodClick = (value: string) => {
         if (data.order_type) {
@@ -37,11 +40,12 @@ function Checkout() {
     };
 
     const handleSubmit = () => {
-        post(route("order.complete"), {
-            onSuccess: () => {
-                setCart([]);
-            },
-        });
+        // post(route("order.complete"), {
+        //     onSuccess: () => {
+        //         setCart([]);
+        //     },
+        // });
+        console.log(data);
     }
 
     const handleClose = (event: SyntheticEvent<Element, Event> | Event, reason?: SnackbarCloseReason) => {

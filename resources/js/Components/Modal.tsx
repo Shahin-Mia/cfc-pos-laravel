@@ -1,4 +1,7 @@
 // import Button from '@mui/material/Button';
+import { useCartStore } from '@/store/useCartStore';
+import { useCart } from '@/utils/CartProvider';
+import { router } from '@inertiajs/react';
 import { Button, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -13,15 +16,18 @@ const Transition = forwardRef(function Transition(props: any, ref) {
 });
 
 export default function Modal({
-    cart,
     product,
-    discount,
     open,
     setOpen,
-    setCart,
-    setProduct,
-    setDiscount
+    setProduct
 }: any) {
+
+    const { totalPrice } = useCart();
+    const updateCartItem = useCartStore((state: any) => state.updateCartItem);
+    const removeFromCart = useCartStore((state: any) => state.removeFromCart);
+    const setDiscount = useCartStore((state: any) => state.setDiscount);
+    const discount_title = useCartStore((state: any) => state.discount_title);
+    const discount = useCartStore((state: any) => state.discount);
 
     const handleClose = () => {
         if (product) {
@@ -38,24 +44,13 @@ export default function Modal({
         const comment = formJson.comment;
 
         if (product) {
-            const newCart = cart.map((item: any) => {
-                if (item.id === product.id) {
-                    return {
-                        ...item,
-                        quantity: quantity,
-                        comment,
-                    }
-                }
-                return item;
-            });
-            setCart(newCart);
+            updateCartItem(product, quantity, comment);
             setProduct(null);
         } else {
             const newDiscount = {
                 title: formJson.discount_title.toString(),
                 percentage: parseFloat(formJson.discount.toString()),
             }
-            console.log(newDiscount);
             setDiscount(newDiscount);
         }
         handleClose();
@@ -63,8 +58,7 @@ export default function Modal({
 
     const handleRemove = () => {
         if (product) {
-            const newCart = cart.filter((item: any) => item.id !== product.id);
-            setCart(newCart);
+            removeFromCart(product);
             setProduct(null);
         }
         handleClose();
@@ -126,7 +120,7 @@ export default function Modal({
                                     label="Discount Title"
                                     fullWidth
                                     variant="outlined"
-                                    defaultValue={discount?.title}
+                                    defaultValue={discount_title}
                                 />
                                 <TextField
                                     autoFocus
@@ -137,7 +131,7 @@ export default function Modal({
                                     type="number"
                                     fullWidth
                                     variant="outlined"
-                                    defaultValue={discount?.percentage}
+                                    defaultValue={discount}
                                 />
                             </>
                         )

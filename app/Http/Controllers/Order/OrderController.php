@@ -30,7 +30,11 @@ class OrderController extends Controller
             "total_price" => "required",
             "order_type" => "required",
             "cart" => "required|Array",
-            "payment_method" => "required"
+            "payment_method" => "required",
+            "tax" => "required",
+            "subtotal" => "required",
+            "discount_percentage" => "nullable",
+            "discount_title" => "nullable",
         ]);
         $data = [...$v_data, "status" => "placed", "user_id" => Auth::id()];
 

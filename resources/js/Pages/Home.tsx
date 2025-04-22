@@ -1,14 +1,16 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { Alert, Box, Button, Card, CardContent, CardMedia, Collapse, Divider, IconButton, Paper, Snackbar, SnackbarCloseReason, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { SyntheticEvent, useContext, useEffect, useMemo, useState } from 'react';
+import { SyntheticEvent, useEffect, useMemo, useState } from 'react';
 import Item from '@/Components/Item';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import Modal from '@/Components/Modal';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useCart } from '@/utils/CartProvider';
+import { useCartStore } from '@/store/useCartStore';
+import axios from 'axios';
 
-export default function Home({ Menus, Meals, OpenSessionModal }: any) {
+export default function Home({ Menus, Meals }: any) {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [message, setMessage] = useState<string>("");
     const [activeMenu, setActiveMenu] = useState<number>(1);
@@ -16,21 +18,14 @@ export default function Home({ Menus, Meals, OpenSessionModal }: any) {
     const [activeCart, setActiveCart] = useState<boolean>(false);
     const [open, setOpen] = useState(false);
     const [product, setProduct] = useState<any>(null);
-    const { cart, setCart, setTotalPrice, discount, setDiscount } = useCart();
-
-    const amount = useMemo(() => {
-        let subtotal = cart.reduce((acc: any, item: any) => acc + item.quantity * item.sale_price, 0).toFixed(2);
-        let discountAmount: any = 0;
-        if (discount.percentage > 0) {
-            discountAmount = (subtotal * (discount.percentage / 100)).toFixed(2);
-        }
-        const discountedSubtotal = parseFloat(subtotal) - parseFloat(discountAmount);
-        const tax: any = (discountedSubtotal * 0.06).toFixed(2);
-        const total: any = (parseFloat(subtotal) + parseFloat(tax) - parseFloat(discountAmount)).toFixed(1);
-        const roundAmount = (parseFloat(total) - parseFloat(subtotal) - parseFloat(tax) + parseFloat(discountAmount)).toFixed(2);
-        console.log(roundAmount)
-        return { subtotal, total, tax, discountAmount, roundAmount };
-    }, [cart, discount.percentage]);
+    const cart = useCartStore((state: any) => state.cart);
+    const addToCart = useCartStore((state: any) => state.addToCart);
+    const subTotal = useCartStore((state: any) => state.subTotalPrice());
+    const tax = useCartStore((state: any) => state.tax());
+    const totalPrice = useCartStore((state: any) => state.totalPrice());
+    const discountAmount = useCartStore((state: any) => state.discountAmount());
+    const discount = useCartStore((state: any) => state.discount);
+    const roundings = useCartStore((state: any) => state.roundings());
 
     useEffect(() => {
         const fetchMeals = Meals.filter((meal: any) => meal.meal_category_id === activeMenu);
@@ -38,12 +33,14 @@ export default function Home({ Menus, Meals, OpenSessionModal }: any) {
     }, [activeMenu]);
 
     useEffect(() => {
-        setActiveCart(cart.length > 0);
+        axios.post(route("save.cart"), {
+            cart: cart
+        })
+        if (cart.length > 0) {
+            setActiveCart(true);
+        }
     }, [cart]);
 
-    useEffect(() => {
-        setTotalPrice(amount.total);
-    }, [amount.total]);
 
     const handleCheckout = () => {
         if (cart.length > 0) {
@@ -52,25 +49,6 @@ export default function Home({ Menus, Meals, OpenSessionModal }: any) {
             setMessage("Please select an item!");
             setOpenSnackbar(true);
         }
-    }
-
-    const handleAddToCart = (meal: any) => {
-        const isExist = cart.find((item: any) => item.id === meal.id);
-        if (isExist) {
-            const newCart = cart.map((item: any) => {
-                if (item.id === meal.id) {
-                    return {
-                        ...item,
-                        quantity: item.quantity + 1
-                    }
-                }
-                return item;
-            });
-            setCart(newCart);
-        } else {
-            setCart([...cart, { ...meal, quantity: 1 }]);
-        }
-        if (!activeCart) setActiveCart(true);
     }
 
     const handleEditorDelete = (product: any) => {
@@ -173,7 +151,7 @@ export default function Home({ Menus, Meals, OpenSessionModal }: any) {
                         <Grid container spacing={2}>
                             {meals.map((meal: any) => (
                                 <Grid size={3} key={meal.id}>
-                                    <Card sx={{ maxWidth: 345, cursor: 'pointer' }} onClick={() => handleAddToCart(meal)}>
+                                    <Card sx={{ maxWidth: 345, cursor: 'pointer' }} onClick={() => addToCart(meal)}>
                                         <CardMedia
                                             sx={{ height: 140, width: '100%', margin: 'auto' }}
                                             image={`/storage/${meal.image.image}`}
@@ -244,26 +222,26 @@ export default function Home({ Menus, Meals, OpenSessionModal }: any) {
                                             <Box sx={{ padding: 1 }}>
                                                 <Typography variant='body1' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <span>Sub total:</span>
-                                                    <span>{amount.subtotal}</span>
+                                                    <span>{subTotal}</span>
                                                 </Typography>
                                                 <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <span>SST:</span>
-                                                    <span>(+6%) {amount.tax}</span>
+                                                    <span>(+6%) {tax}</span>
                                                 </Typography>
                                                 {
-                                                    discount.percentage > 0 &&
+                                                    discount > 0 &&
                                                     <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                         <span>Discount:</span>
-                                                        <span>(-{discount.percentage}%) {amount.discountAmount} </span>
+                                                        <span>(-{discount}%) {discountAmount} </span>
                                                     </Typography>
                                                 }
                                                 <Typography variant='caption' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <span>Roundings:</span>
-                                                    <span>{amount.roundAmount}</span>
+                                                    <span>{roundings}</span>
                                                 </Typography>
                                                 <Typography variant='h6' sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <span>Total:</span>
-                                                    <span> {amount.total}<Typography variant="overline">RM</Typography></span>
+                                                    <span> {totalPrice}<Typography variant="overline">RM</Typography></span>
                                                 </Typography>
                                             </Box>
                                             <Divider />
@@ -282,14 +260,10 @@ export default function Home({ Menus, Meals, OpenSessionModal }: any) {
                 </Box>
             </Box >
             <Modal
-                cart={cart}
                 product={product}
-                discount={discount}
                 open={open}
                 setOpen={setOpen}
-                setCart={setCart}
                 setProduct={setProduct}
-                setDiscount={setDiscount}
             />
         </AuthenticatedLayout >
     );
