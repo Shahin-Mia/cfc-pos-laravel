@@ -1,7 +1,6 @@
 // import Button from '@mui/material/Button';
 import { useCartStore } from '@/store/useCartStore';
 import { useCart } from '@/utils/CartProvider';
-import { router } from '@inertiajs/react';
 import { Button, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -21,8 +20,6 @@ export default function Modal({
     setOpen,
     setProduct
 }: any) {
-
-    const { totalPrice } = useCart();
     const updateCartItem = useCartStore((state: any) => state.updateCartItem);
     const removeFromCart = useCartStore((state: any) => state.removeFromCart);
     const setDiscount = useCartStore((state: any) => state.setDiscount);
@@ -45,7 +42,6 @@ export default function Modal({
 
         if (product) {
             updateCartItem(product, quantity, comment);
-            setProduct(null);
         } else {
             const newDiscount = {
                 title: formJson.discount_title.toString(),
@@ -60,6 +56,11 @@ export default function Modal({
         if (product) {
             removeFromCart(product);
             setProduct(null);
+        } else {
+            setDiscount({
+                title: "",
+                percentage: 0,
+            });
         }
         handleClose();
     }
@@ -114,7 +115,6 @@ export default function Modal({
                             <>
                                 <TextField
                                     autoFocus
-                                    required
                                     margin="dense"
                                     name="discount_title"
                                     label="Discount Title"
@@ -124,7 +124,6 @@ export default function Modal({
                                 />
                                 <TextField
                                     autoFocus
-                                    required
                                     margin="dense"
                                     name="discount"
                                     label="Discount"
@@ -141,7 +140,7 @@ export default function Modal({
                     <div>
                         <Button onClick={handleClose}>Cancel</Button>
                         {
-                            product &&
+                            (product || discount > 0) &&
                             <Button onClick={handleRemove} variant='contained' size='small' color='error'>Remove</Button>
                         }
                     </div>

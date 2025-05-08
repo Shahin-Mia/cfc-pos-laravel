@@ -6,17 +6,39 @@ import Item from '@/Components/Item';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import Modal from '@/Components/Modal';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { useCart } from '@/utils/CartProvider';
 import { useCartStore } from '@/store/useCartStore';
 import axios from 'axios';
+import SessionModal from '@/Components/SessionModal';
+import MealModal from '@/Components/MealModal';
 
-export default function Home({ Menus, Meals }: any) {
+const gridStyle = {
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    boxSizing: 'border-box',
+    height: "100%",
+    '&::-webkit-scrollbar': {
+        width: '5px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#888',
+        borderRadius: '4px'
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+        backgroundColor: '#555',
+    },
+    '&::-webkit-scrollbar-track': {
+        backgroundColor: '#f1f1f1',
+    },
+};
+
+export default function Home({ Menus, Meals, pos_session }: any) {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [message, setMessage] = useState<string>("");
     const [activeMenu, setActiveMenu] = useState<number>(1);
     const [meals, setMeals] = useState<any>([]);
     const [activeCart, setActiveCart] = useState<boolean>(false);
     const [open, setOpen] = useState(false);
+    const [sessionOpen, setSessionOpen] = useState(false);
     const [product, setProduct] = useState<any>(null);
     const cart = useCartStore((state: any) => state.cart);
     const addToCart = useCartStore((state: any) => state.addToCart);
@@ -26,6 +48,9 @@ export default function Home({ Menus, Meals }: any) {
     const discountAmount = useCartStore((state: any) => state.discountAmount());
     const discount = useCartStore((state: any) => state.discount);
     const roundings = useCartStore((state: any) => state.roundings());
+    const setSessionId = useCartStore((state: any) => state.setSessionId);
+    const [openMealModal, setOpenMealModal] = useState(false);
+    const [meal, setMeal] = useState<any>(null);
 
     useEffect(() => {
         const fetchMeals = Meals.filter((meal: any) => meal.meal_category_id === activeMenu);
@@ -40,6 +65,15 @@ export default function Home({ Menus, Meals }: any) {
             setActiveCart(true);
         }
     }, [cart]);
+
+    useEffect(() => {
+        if (!pos_session) {
+            setSessionOpen(true);
+        } else {
+            setSessionId(pos_session.id);
+            console.log(pos_session)
+        }
+    }, [pos_session]);
 
 
     const handleCheckout = () => {
@@ -68,6 +102,20 @@ export default function Home({ Menus, Meals }: any) {
         setOpenSnackbar(false);
     };
 
+    const handleAddToCart = (meal: any) => {
+        const item = meals.find((item: any) => item.id === meal.id);
+        if (item.varient_available) {
+            setMeal(item);
+            setOpenMealModal(true);
+        } else {
+            const mealData = {
+                ...item,
+                varient_id: null
+            };
+            addToCart(mealData);
+        }
+    }
+
     return (
         <AuthenticatedLayout>
             <Head title="Meals" />
@@ -83,26 +131,7 @@ export default function Home({ Menus, Meals }: any) {
             </Snackbar>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch', height: 'calc(100% - 64px)' }}>
                 <Grid container sx={{ overflow: 'auto', height: '100%', flex: 1 }}>
-                    <Grid size={{ xs: 3 }} sx={{
-                        overflowY: 'auto',
-                        overflowX: 'hidden',
-                        boxSizing: 'border-box',
-                        height: "100%",
-                        '&::-webkit-scrollbar': {
-                            width: '5px',
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            backgroundColor: '#888',
-                            borderRadius: '4px'
-                        },
-                        '&::-webkit-scrollbar-thumb:hover': {
-                            backgroundColor: '#555',
-                        },
-                        '&::-webkit-scrollbar-track': {
-                            backgroundColor: '#f1f1f1',
-                        },
-                    }}>
-
+                    <Grid size={{ xs: 3 }} sx={gridStyle}>
                         <Stack
                             divider={<Divider />}
                             spacing={1}
@@ -130,28 +159,12 @@ export default function Home({ Menus, Meals }: any) {
                     {/* Meals List */}
                     <Grid size={{ xs: 9 }} sx={{
                         padding: 2,
-                        overflowY: 'auto',
-                        overflowX: 'hidden',
-                        boxSizing: 'border-box',
-                        height: "100%",
-                        '&::-webkit-scrollbar': {
-                            width: '5px',
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            backgroundColor: '#888',
-                            borderRadius: '4px'
-                        },
-                        '&::-webkit-scrollbar-thumb:hover': {
-                            backgroundColor: '#555',
-                        },
-                        '&::-webkit-scrollbar-track': {
-                            backgroundColor: '#f1f1f1', // Track color
-                        },
+                        ...gridStyle
                     }}>
                         <Grid container spacing={2}>
                             {meals.map((meal: any) => (
                                 <Grid size={3} key={meal.id}>
-                                    <Card sx={{ maxWidth: 345, cursor: 'pointer' }} onClick={() => addToCart(meal)}>
+                                    <Card sx={{ maxWidth: 345, cursor: 'pointer' }} onClick={() => handleAddToCart(meal)}>
                                         <CardMedia
                                             sx={{ height: 140, width: '100%', margin: 'auto' }}
                                             image={`/storage/${meal.image.image}`}
@@ -247,8 +260,12 @@ export default function Home({ Menus, Meals }: any) {
                                             <Divider />
                                             <Box sx={{ padding: 1, display: 'flex', justifyContent: 'space-between' }}>
                                                 <Button variant='outlined' color='primary' onClick={handleCheckout}>Checkout</Button>
-                                                <Button variant="text" size='small' onClick={() => setOpen(true)}>
-                                                    Add Discount
+                                                <Button variant="text" size='small' color={discount > 0 ? "error" : "primary"} onClick={() => setOpen(true)}>
+                                                    {
+                                                        discount > 0 ?
+                                                            "Edit Discount" :
+                                                            "Add Discount"
+                                                    }
                                                 </Button>
                                             </Box>
                                         </Paper>
@@ -259,12 +276,28 @@ export default function Home({ Menus, Meals }: any) {
                     </Collapse>
                 </Box>
             </Box >
+
+            {/*cart item edit modal*/}
             <Modal
                 product={product}
                 open={open}
                 setOpen={setOpen}
                 setProduct={setProduct}
             />
+
+            {/*pos session create modal*/}
+            <SessionModal
+                open={sessionOpen}
+                setOpen={setSessionOpen}
+            />
+
+            {/* meal varient modal */}
+            <MealModal
+                open={openMealModal}
+                setOpen={setOpenMealModal}
+                meal={meal}
+            />
+
         </AuthenticatedLayout >
     );
 }

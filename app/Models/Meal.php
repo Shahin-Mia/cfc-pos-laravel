@@ -14,6 +14,7 @@ class Meal extends Model
         "sale_price",
         "is_available",
         "description",
+        "varient_available",
         "created_by",
         "updated_by"
     ];
@@ -31,5 +32,10 @@ class Meal extends Model
     public function mealProducts()
     {
         return $this->hasMany(MealProduct::class, 'meal_id');
+    }
+
+    public function varients()
+    {
+        return $this->hasMany(Varients::class, 'meal_id');
     }
 }

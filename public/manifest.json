@@ -1,0 +1,17 @@
+{
+    "name": "CFC POS",
+    "short_name": "CFC_POS",
+    "start_url": "/index.php",
+    "background_color": "#ff5f00",
+    "description": "Point of Sale System for CFC",
+    "display": "fullscreen",
+    "theme_color": "#ff5f00",
+    "icons": [
+        {
+            "src": "storage/images/cfc-logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

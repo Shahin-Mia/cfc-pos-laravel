@@ -8,6 +8,7 @@ use App\Models\MealCategory;
 use App\Models\MealProduct;
 use App\Models\Product;
 use App\Models\Unit;
+use App\Models\Varients;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,7 @@ class MealController extends Controller
      */
     public function index()
     {
-        $meals = Meal::with(["image", "mealCategory", "mealProducts.product.stock"])->paginate(15);
+        $meals = Meal::with(["image", "mealCategory", "mealProducts.product.stock", "varients"])->paginate(15);
         return Inertia::render("Meals", [
             "meals" => $meals
         ]);
@@ -56,7 +57,9 @@ class MealController extends Controller
             'sale_price' => 'required',
             'image' => 'required|image|max:2048|mimes:png,webp,bmp',
             'is_available' => 'required',
-            'products_selected' => 'nullable|array'
+            'products_selected' => 'nullable|array',
+            'varient_available' => 'required',
+            'varients' => 'nullable|array'
         ]);
 
         try {
@@ -70,6 +73,7 @@ class MealController extends Controller
                 'purchase_price' => $validatedData['purchase_price'],
                 'sale_price' => $validatedData['sale_price'],
                 'is_available' => $validatedData['is_available'],
+                'varient_available' => $validatedData['varient_available'],
                 'created_by' => Auth::id(),
                 'updated_by' => Auth::id()
             ]);
@@ -86,10 +90,20 @@ class MealController extends Controller
                 }
             }
 
+            if ($validatedData['varient_available'] == 1) {
+                if (!empty($validatedData['varients'])) {
+                    foreach ($validatedData['varients'] as $varient) {
+                        $meal->varients()->create([
+                            'name' => $varient['name'],
+                            'extra_price' => $varient['extra_price']
+                        ]);
+                    }
+                }
+            }
+
 
             return redirect()->route("meals.create")->with(["success" => "Meal created successfully!"]);
         } catch (Exception $e) {
-            dd($e);
             return redirect()->route("meals.create")->with(["error" => "Meal not created!"]);
         }
     }
@@ -99,7 +113,7 @@ class MealController extends Controller
      */
     public function edit($id)
     {
-        $meal = Meal::with(['mealCategory', 'mealProducts.product.stock.purchaseUnit'])->findOrFail($id);
+        $meal = Meal::with(['mealCategory', 'mealProducts.product.stock.purchaseUnit', 'varients'])->findOrFail($id);
         $mealCategories = MealCategory::all();
         $units = Unit::all();
         $products = Product::with(['stock.saleUnit', 'stock.purchaseUnit', 'category'])->get();
@@ -126,7 +140,9 @@ class MealController extends Controller
             'image' => 'nullable|image|max:2048|mimes:png,webp,bmp',
             'is_available' => 'required',
             'products_selected' => 'nullable|array',
-            'deleted_products' => 'nullable|array'
+            'deleted_products' => 'nullable|array',
+            'varient_available' => 'nullable',
+            'varients' => 'nullable|array'
         ]);
 
         try {
@@ -159,6 +175,31 @@ class MealController extends Controller
                 }
             }
 
+            if ($validatedData['varient_available'] == 1) {
+                if (!empty($validatedData['varients'])) {
+                    foreach ($validatedData['varients'] as $varient) {
+                        if (isset($varient["id"])) {
+                            $mealVarient = Varients::findOrFail($varient["id"]);
+                            $mealVarient->update([
+                                'name' => $varient['name'],
+                                'extra_price' => $varient['extra_price']
+                            ]);
+                        } else {
+                            $meal->varients()->create([
+                                'name' => $varient['name'],
+                                'extra_price' => $varient['extra_price']
+                            ]);
+                        }
+                    }
+                }
+            } else {
+                if ($meal->varients && $meal->varients->count()) {
+                    foreach ($meal->varients as $varient) {
+                        $varient->delete();
+                    }
+                }
+            }
+
             $meal->update([
                 'title' => $validatedData['title'],
                 'description' => $validatedData['description'],
@@ -167,6 +208,7 @@ class MealController extends Controller
                 'purchase_price' => $validatedData['purchase_price'],
                 'sale_price' => $validatedData['sale_price'],
                 'is_available' => $validatedData['is_available'],
+                'varient_available' => $validatedData['varient_available'],
                 'updated_by' => Auth::id()
             ]);
 
@@ -188,6 +230,7 @@ class MealController extends Controller
 
             return redirect()->route("meals.index")->with("success", "Meal updated!");
         } catch (Exception $e) {
+            dd($e);
             return redirect()->route("meals.edit", $id)->with("error", "Meal can't update!");
         }
     }

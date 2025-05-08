@@ -4,9 +4,10 @@ export const cartSlice = (set: any, get: any) => ({
     discount: 0,
     addToCart: (item: any) => {
         set((state: any) => ({
-            cart: state.cart.some((i: any) => i.id === item.id)
+            cart: state.cart.some((i: any) => (i.id === item.id && i.varient_id === item.varient_id))
                 ? state.cart.map((i: any) =>
-                    i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+                    (i.id === item.id && i.varient_id === item.varient_id) ?
+                        { ...i, quantity: i.quantity + 1 } : i
                 )
                 : [...state.cart, { ...item, quantity: 1 }],
         }))
@@ -14,12 +15,14 @@ export const cartSlice = (set: any, get: any) => ({
 
     updateCartItem: (item: any, quantity: any, comment: any) => set((state: any) => ({
         cart: state.cart.map((i: any) => {
-            if (i.id === item.id) {
+            if (i.id === item.id && i.varient_id === item.varient_id) {
                 return {
                     ...i,
                     quantity: quantity,
                     comment: comment,
                 };
+            } else {
+                return i;
             }
         })
     })),
@@ -29,7 +32,7 @@ export const cartSlice = (set: any, get: any) => ({
     })),
 
     removeFromCart: (item: any) => set((state: any) => ({
-        cart: state.cart.filter((i: any) => i.id !== item.id),
+        cart: state.cart.filter((i: any) => !(i.id === item.id && i.varient_id === item.varient_id)),
     })),
 
     setDiscount: (discount: any) => set(() => ({

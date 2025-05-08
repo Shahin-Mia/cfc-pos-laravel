@@ -1,7 +1,6 @@
 import Grid from '@mui/material/Grid2'
 import AuthenticatedLayout from './AuthenticatedLayout'
 import Sidebar from '@/Components/Sidebar'
-import { PageProps } from '@/types'
 import { ReactNode } from 'react'
 
 function DashboardLayout({ children }: { children?: ReactNode }) {

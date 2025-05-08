@@ -1,8 +1,14 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
+    "author": [
+        {
+            "name": "MD Shahin Mia",
+            "email": "shahin.cst2@gmail.com"
+        }
+    ],
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "This is a Point of Sale (POS) system built with Laravel, Inertia.js, and React.js. It includes features like product management, sales tracking, and customer management.",
     "keywords": [
         "laravel",
         "framework"
@@ -11,6 +17,7 @@
     "require": {
         "php": "^8.2",
         "inertiajs/inertia-laravel": "^2.0",
+        "ladumor/laravel-pwa": "^0.0.4",
         "laravel/framework": "^11.31",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",

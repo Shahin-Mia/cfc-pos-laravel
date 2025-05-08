@@ -88,6 +88,7 @@ const Meals: React.FC<any> = ({ meals, flash }) => {
                         variant="contained"
                         color="primary"
                         startIcon={<AddIcon />}
+                        size="small"
                     >
                         Add Meal
                     </Button>

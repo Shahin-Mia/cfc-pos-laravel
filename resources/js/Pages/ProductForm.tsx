@@ -3,6 +3,7 @@ import { Box, Button, Card, CardContent, TextField, Typography, MenuItem, Select
 import Grid from '@mui/material/Grid2';
 import { Head, Link, useForm } from '@inertiajs/react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
+import { ChevronLeft } from '@mui/icons-material';
 
 interface Category {
     id: number;
@@ -204,10 +205,11 @@ function ProductForm({
                         {product ? "Edit Product" : "Product Add"}
                     </Typography>
                     <Button
-                        variant="contained"
-                        color="secondary"
-                        component={Link}
-                        href={route("products.index")}
+                        variant="outlined"
+                        size="small"
+                        color="primary"
+                        onClick={() => window.history.back()}
+                        startIcon={<ChevronLeft />}
                     >
                         Go Back
                     </Button>

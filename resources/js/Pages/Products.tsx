@@ -10,12 +10,10 @@ import {
     TableHead,
     TableRow,
     Typography,
-    Avatar,
     IconButton,
     Menu,
     MenuItem,
     Pagination,
-    Tooltip,
     Badge,
     SnackbarCloseReason,
     Snackbar,
@@ -24,10 +22,13 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AddIcon from "@mui/icons-material/Add";
 import DashboardLayout from "@/Layouts/DashboardLayout";
+import StockAddModal from "@/Components/StockAddModal";
 
 
 const Products: React.FC<any> = ({ products, flash }) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [openStockAddModal, setOpenStockAddModal] = useState(false);
+    const [product, setProduct] = useState<any>(null);
     const { delete: destroy, processing } = useForm();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [menuProductId, setMenuProductId] = React.useState<number | null>(null);
@@ -66,6 +67,12 @@ const Products: React.FC<any> = ({ products, flash }) => {
         setOpenSnackbar(false);
     };
 
+    const handleAddStock = (product: any) => {
+        setProduct(product);
+        setOpenStockAddModal(true);
+        handleMenuClose();
+    }
+
     return (
         <DashboardLayout>
             <Head title="Products" />
@@ -87,6 +94,7 @@ const Products: React.FC<any> = ({ products, flash }) => {
                         variant="contained"
                         color="primary"
                         startIcon={<AddIcon />}
+                        size="small"
                     >
                         Add Product
                     </Button>
@@ -185,6 +193,12 @@ const Products: React.FC<any> = ({ products, flash }) => {
                                         onClose={handleMenuClose}
                                     >
                                         <MenuItem
+                                            onClick={() => handleAddStock(product)}
+                                            disabled={processing}
+                                        >
+                                            Add Stock
+                                        </MenuItem>
+                                        <MenuItem
                                             component={Link}
                                             href={route("products.edit", product.id)}
                                         >
@@ -213,6 +227,14 @@ const Products: React.FC<any> = ({ products, flash }) => {
                     color="primary"
                 />
             </Box>
+
+            {/* Add Stock Modal */}
+            <StockAddModal
+                product={product}
+                open={openStockAddModal}
+                setOpen={setOpenStockAddModal}
+                setProduct={setProduct}
+            />
         </DashboardLayout>
     );
 };

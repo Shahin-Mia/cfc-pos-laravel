@@ -257,4 +257,34 @@ class ProductController extends Controller
         }
         return redirect()->route("products.index")->with('success', 'Product successfully deleted.');
     }
+
+    public function stockAdd(Request $request, $product_id)
+    {
+        $validatedData = $request->validate([
+            'quantity' => 'required|numeric',
+            'is_available' => 'nullable',
+        ]);
+        $product = Product::findOrFail($product_id);
+        $stock = $product->stock;
+
+        if (!$stock) {
+            return redirect()->back()->withErrors(['error' => 'Stock not found.']);
+        }
+
+        // Add stock
+        $validatedData['created_by'] = Auth::id();
+        $curretentStock = $stock->stock;
+        $validatedData['last_quantity'] = $curretentStock;
+        $newStock = $curretentStock + $validatedData['quantity'];
+        $stock->stockAdds()->create($validatedData);
+        $stock->update([
+            'stock' => $newStock,
+        ]);
+        $product->update([
+            'is_available' => $validatedData['is_available'],
+        ]);
+
+
+        return redirect()->back()->with('success', 'Stock successfully added.');
+    }
 }

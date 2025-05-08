@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import React, { createContext, PropsWithChildren, ReactNode, useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -17,12 +17,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { Avatar } from '@mui/material';
+import { Avatar, Button } from '@mui/material';
 import Drowpdown from '@/Components/Dropdown';
-import { Assignment, Fastfood, Sell } from '@mui/icons-material';
+import { Assignment, Close, Fastfood, Sell } from '@mui/icons-material';
+import { useCartStore } from '@/store/useCartStore';
 
 
-const drawerWidth = 25;
+const drawerWidth = 20;
 
 interface MainProps {
     open?: boolean;
@@ -90,6 +91,8 @@ export default function AuthenticatedLayout({
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const user = usePage().props.auth.user;
+    const session_id = useCartStore((state: any) => state.session_id)
+    const setSessionId = useCartStore((state: any) => state.setSessionId);
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
 
@@ -118,9 +121,17 @@ export default function AuthenticatedLayout({
             id: 3,
             name: "Sales",
             icon: <Sell />,
-            href: "home"
+            href: "sales.index"
         }
     ];
+
+    const endSession = () => {
+        router.get(route("end.session", session_id), {}, {
+            onSuccess: () => {
+                setSessionId('');
+            }
+        });
+    }
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -183,6 +194,44 @@ export default function AuthenticatedLayout({
                         ))
                     }
                 </List>
+                {
+                    session_id ?
+                        <Button
+                            sx={{
+                                mt: 'auto',
+                                mx: 1,
+                                mb: 1,
+                                width: 80,
+                                height: 100,
+                                display: 'flex',
+                                flexDirection: 'column'
+                            }}
+                            size='small'
+                            variant='outlined'
+                            color='error'
+                            onClick={endSession}
+                        >
+                            <span><Close /></span>
+                            <span>End Session</span>
+                        </Button> :
+                        <Button
+                            sx={{
+                                mt: 'auto',
+                                mx: 1,
+                                mb: 1,
+                                width: 80,
+                                height: 100,
+                                textAlign: 'center'
+                            }}
+                            size='small'
+                            variant='outlined'
+                            color='primary'
+                            component={Link}
+                            href={route('home')}
+                        >
+                            <span>Start Session</span>
+                        </Button>
+                }
             </Drawer>
         </Box >
     );

@@ -142,7 +142,7 @@ const Sidebar: React.FC = () => {
                 </ListItem>
                 <Collapse in={open.accounting} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding dense>
-                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                        <ListItemButton component={Link} href={route("dashboard.sales")} sx={{ pl: 4 }}>
                             <ListItemText primary="Sales" />
                         </ListItemButton>
                         <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>

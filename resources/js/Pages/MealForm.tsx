@@ -24,14 +24,19 @@ import {
     Snackbar,
     Alert,
     SnackbarCloseReason,
+    Popover,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { VisuallyHiddenInput } from "@/Components/VisuallyHiddenInput";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { Add, ChevronLeft } from "@mui/icons-material";
 
-
+interface Varient {
+    name: string,
+    extra_price: number
+}
 
 interface FormData {
     title: string,
@@ -43,13 +48,17 @@ interface FormData {
     image: File | null,
     is_available: number,
     products_selected: any[],
-    deleted_products: any[]
+    deleted_products: any[],
+    varient_available: number,
+    varients: Varient[],
 }
 
 const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash }) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [d_products, setDProducts] = useState<any>([]);
-    const { data, setData, post, put, processing, errors } = useForm<FormData>({
+    const [productSearch, setProductSearch] = useState("");
+    const [filteredProducts, setFilteredProducts] = useState<any>([]);
+    const { data, setData, post, processing, errors } = useForm<FormData>({
         title: "",
         description: "",
         sale_unit_id: 0,
@@ -59,9 +68,11 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
         image: null,
         is_available: 0,
         products_selected: [],
-        deleted_products: []
+        deleted_products: [],
+        varient_available: 0,
+        varients: [],
     });
-
+    console.log(meal);
 
     useEffect(() => {
         if (meal) {
@@ -92,8 +103,6 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
             setOpenSnackbar(true);
         }
     }, [flash]);
-    const [productSearch, setProductSearch] = useState("");
-    const [filteredProducts, setFilteredProducts] = useState<any>([]);
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value) {
             setProductSearch(e.target.value);
@@ -180,6 +189,38 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
         setOpenSnackbar(false);
     };
 
+    const handleSearchClose = () => {
+        setProductSearch("");
+        setFilteredProducts([])
+    }
+
+    const addVarient = () => {
+        const newVarient = {
+            name: "",
+            extra_price: 0,
+        };
+        const updatedVarients = [...data.varients];
+        updatedVarients.push(newVarient);
+        setData("varients", updatedVarients);
+    };
+
+
+    const handleOnChange = (e: any, index: number, field: any) => {
+        const updatedVarients = [...data.varients];
+        if (field === "name") {
+            updatedVarients[index].name = e.target.value;
+        } else if (field === "extra_price") {
+            updatedVarients[index].extra_price = Number(e.target.value);
+        }
+        setData("varients", updatedVarients);
+    }
+
+    const deleteVarient = (index: number) => {
+        const updatedVarients = [...data.varients];
+        updatedVarients.splice(index, 1);
+        setData("varients", updatedVarients);
+    }
+
     return (
         <DashboardLayout>
             <Head title="Meal" />
@@ -202,11 +243,11 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                     }
                 </Typography>
                 <Button
-                    variant="contained"
+                    variant="outlined"
                     size="small"
-                    color="secondary"
-                    component={Link}
-                    href={route("meals.index")}
+                    color="primary"
+                    onClick={() => window.history.back()}
+                    startIcon={<ChevronLeft />}
                 >
                     Go Back
                 </Button>
@@ -245,24 +286,43 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                                     placeholder="Enter element title..."
                                     size="small"
                                     type="search"
+                                    id="productSearch"
                                 />
                             </Grid>
                             <Grid size={{ xs: 12 }}>
-                                {filteredProducts.length > 0 && (
-                                    <List dense>
+                                <Popover
+                                    open={Boolean(filteredProducts.length)}
+                                    anchorEl={document.querySelector("#productSearch")}
+                                    anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'center',
+                                    }}
+                                    transformOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'center',
+                                    }}
+                                    onClose={handleSearchClose}
+                                    disableAutoFocus
+                                    disablePortal
+                                >
+                                    <List dense sx={{ width: 500, maxHeight: 230, overflowY: "auto" }}>
                                         {filteredProducts.map((product: any) => (
                                             <ListItem
                                                 key={product.id}
                                                 onClick={() => addProduct(product)}
                                                 sx={{ cursor: "pointer", "&:hover": { backgroundColor: "#eee" } }}
+                                                secondaryAction={
+                                                    <Typography variant="overline">Price: ${product.stock.purchase_price}</Typography>
+                                                }
                                             >
-                                                <ListItemText>
-                                                    {product.title} (Price: {product.stock.purchase_price})
-                                                </ListItemText>
+                                                <ListItemText
+                                                    primary={product.title}
+                                                />
+
                                             </ListItem>
                                         ))}
                                     </List>
-                                )}
+                                </Popover>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
@@ -305,22 +365,6 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                                     </TableBody>
                                 </Table>
                             </Grid>
-                            {/* <Grid size={{ xs: 12 }}>
-                                <Box sx={{ width: "100%", display: 'flex', justifyContent: "end" }}>
-                                    {
-                                        data.products_selected.length > 0 && (
-                                            <Button
-                                                onClick={calculateProduction}
-                                                variant="contained"
-                                                color="secondary"
-                                                sx={{ mt: 2 }}
-                                            >
-                                                Calculate
-                                            </Button>
-                                        )
-                                    }
-                                </Box>
-                            </Grid> */}
                             <Grid size={{ xs: 12, md: 4 }}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel>Unit*</InputLabel>
@@ -399,6 +443,19 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                                 </FormControl>
                             </Grid>
                             <Grid size={{ xs: 12, md: 4 }}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Varient availability</InputLabel>
+                                    <Select
+                                        value={data.varient_available}
+                                        onChange={(e) => setData('varient_available', Number(e.target.value))}
+                                        label="Varient availability"
+                                    >
+                                        <MenuItem value="1">Yes</MenuItem>
+                                        <MenuItem value="0">No</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid size={{ xs: 12, md: 4 }}>
                                 <Button
                                     component="label"
                                     variant="outlined"
@@ -419,12 +476,58 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
                                 {errors.image && <Typography color="error" variant="caption">{errors.image}</Typography>}
                             </Grid>
                             <Grid size={{ xs: 12 }}>
+                                {data.varient_available === 1 && (
+                                    <Table size="small">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>
+                                                    <span>#</span>
+                                                    <Button size="small" onClick={addVarient}>
+                                                        <Add />
+                                                    </Button>
+                                                </TableCell>
+                                                <TableCell>Name</TableCell>
+                                                <TableCell>Extra Price</TableCell>
+                                                <TableCell>Action</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {data.varients.map((varient: any, index: number) => (
+                                                <TableRow key={index}>
+                                                    <TableCell>{index + 1}</TableCell>
+                                                    <TableCell>
+                                                        <TextField
+                                                            value={varient.name}
+                                                            onChange={(e) => handleOnChange(e, index, "name")}
+                                                            size="small"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <TextField
+                                                            value={varient.extra_price}
+                                                            onChange={(e) => handleOnChange(e, index, "extra_price")}
+                                                            size="small"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <IconButton
+                                                            onClick={() => deleteVarient(index)}
+                                                        >
+                                                            <DeleteIcon color="error" />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                )}
+                            </Grid>
+                            <Grid size={{ xs: 12 }}>
                                 <Button
                                     type="submit"
                                     variant="contained"
                                     color="primary"
                                     disabled={processing}
-
                                 >
                                     {
                                         processing ?

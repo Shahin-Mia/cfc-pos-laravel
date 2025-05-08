@@ -17,7 +17,9 @@ function Checkout() {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState<string>("");
-    const { data, setData } = useForm({
+    const session_id = useCartStore((state: any) => state.session_id);
+    const clearCart = useCartStore((state: any) => state.clearCart);
+    const { data, setData, post, processing } = useForm({
         tax: tax,
         discount_percentage: discount,
         discount_title: discount_title,
@@ -25,7 +27,8 @@ function Checkout() {
         order_type: "",
         payment_method: "",
         total_price: totalPrice,
-        cart: cart
+        cart: cart,
+        pos_session_id: session_id,
     });
 
 
@@ -40,12 +43,11 @@ function Checkout() {
     };
 
     const handleSubmit = () => {
-        // post(route("order.complete"), {
-        //     onSuccess: () => {
-        //         setCart([]);
-        //     },
-        // });
-        console.log(data);
+        post(route("order.complete"), {
+            onSuccess: () => {
+                clearCart();
+            },
+        });
     }
 
     const handleClose = (event: SyntheticEvent<Element, Event> | Event, reason?: SnackbarCloseReason) => {
@@ -205,6 +207,7 @@ function Checkout() {
                 totalPrice={totalPrice}
                 payment_method={data.payment_method}
                 handleSubmit={handleSubmit}
+                loading={processing}
             />
         </AuthenticatedLayout>
     )
