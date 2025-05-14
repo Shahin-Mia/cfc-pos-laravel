@@ -24,15 +24,12 @@ class PrinterService
             $this->printer->setJustification(Printer::JUSTIFY_CENTER);
             $this->printer->graphics($img);
 
-            $this->printer->feed(1); // Line break
-
-            $this->printer->setJustification(Printer::JUSTIFY_CENTER);
-            $this->printer->setTextSize(2, 1); // Double size text for shop name
+            $this->printer->feed(1);
+            $this->printer->setTextSize(2, 1);
             $this->printer->setEmphasis(true);
             $this->printer->text("Chairman Fried Chicken\n");
             $this->printer->setEmphasis(false);
-            $this->printer->feed(1); // Line break
-
+            $this->printer->feed(1);
             $this->printer->setPrintLeftMargin(25);
 
             // === TRANSACTION INFO ===
@@ -50,7 +47,6 @@ class PrinterService
                 $this->printer->text("Cashier: " . Auth::user()->name . "\n");
                 $this->printer->feed(1);
 
-
                 // === ITEM LIST ===
                 if (isset($order["cart"])) {
                     $this->printer->setEmphasis(true);
@@ -59,7 +55,7 @@ class PrinterService
                     $this->printer->text(str_repeat("-", 45) . "\n");
 
                     foreach ($order["cart"] as $item) {
-                        $wrappedTitle = wordwrap($item['title'], 30, "\n");;
+                        $wrappedTitle = wordwrap($item['title'], 30, "\n");
                         $titleChunks = explode("\n", $wrappedTitle);
                         foreach ($titleChunks as $index => $chunk) {
                             if ($index === 0) {
@@ -75,24 +71,25 @@ class PrinterService
                     $this->printer->text(str_repeat("-", 45) . "\n");
                 }
 
-                // === TOTAL ===
                 $this->printer->setEmphasis(true);
                 $this->printer->text(str_pad("Total:", 39, " ", STR_PAD_BOTH) . "$" . number_format($order["total_price"], 2) . "\n");
                 $this->printer->setEmphasis(false);
-
                 $this->printer->feed(2);
             }
 
-            // === FOOTER ===
             $this->printer->setJustification(Printer::JUSTIFY_CENTER);
             $this->printer->text("Thank you for your purchase!\n");
             $this->printer->text("Visit us again at www.chairmanfood.shop\n");
             $this->printer->feed(3);
 
             $this->printer->cut();
-            $this->printer->close();
         } catch (Exception $e) {
+            // Optional: log error here
             throw new Exception("Printing failed: " . $e->getMessage());
+        } finally {
+            if (isset($this->printer)) {
+                $this->printer->close(); // ✅ Always closes — no more "not finalized" error
+            }
         }
     }
 }

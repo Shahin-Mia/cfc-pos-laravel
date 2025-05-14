@@ -72,7 +72,6 @@ const MealForm: React.FC<any> = ({ mealCategories, units, products, meal, flash 
         varient_available: 0,
         varients: [],
     });
-    console.log(meal);
 
     useEffect(() => {
         if (meal) {

@@ -28,8 +28,22 @@ createInertiaApp({
             const [loading, setLoading] = useState(false);
 
             useEffect(() => {
-                router.on('start', () => setLoading(true));
+                const handleStart = (event: any) => {
+                    // Only show loader for actual visits, not form submissions
+                    console.log(event)
+                    if (event.detail.visit.method === 'get' && Object.keys(event.detail.visit.data).length === 0) {
+                        setLoading(true);
+                    }
+                };
+
+                router.on('start', handleStart);
                 router.on('finish', () => setLoading(false));
+                router.on('error', () => setLoading(false));
+                router.on('invalid', () => setLoading(false));
+
+                return () => {
+                    router.on('start', handleStart);
+                };
             }, []);
 
             return (

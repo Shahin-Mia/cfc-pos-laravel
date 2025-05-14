@@ -145,16 +145,13 @@ const Sidebar: React.FC = () => {
                         <ListItemButton component={Link} href={route("dashboard.sales")} sx={{ pl: 4 }}>
                             <ListItemText primary="Sales" />
                         </ListItemButton>
-                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
-                            <ListItemText primary="Orders" />
-                        </ListItemButton>
-                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                        <ListItemButton component={Link} href={route("expenses.index")} sx={{ pl: 4 }}>
                             <ListItemText primary="Expenses" />
                         </ListItemButton>
                     </List>
                 </Collapse>
                 <Divider />
-                <ListItem disablePadding>
+                {/* <ListItem disablePadding>
                     <ListItemButton onClick={() => toggleMenu('reports')}>
                         <ListItemIcon>
                             <Assessment />
@@ -165,18 +162,18 @@ const Sidebar: React.FC = () => {
                 </ListItem>
                 <Collapse in={open.reports} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding dense>
-                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                        <ListItemButton sx={{ pl: 4 }}>
                             <ListItemText primary="Element Stock" />
                         </ListItemButton>
-                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                        <ListItemButton sx={{ pl: 4 }}>
                             <ListItemText primary="Product Stock" />
                         </ListItemButton>
-                        <ListItemButton component={Link} href="#" sx={{ pl: 4 }}>
+                        <ListItemButton sx={{ pl: 4 }}>
                             <ListItemText primary="Production Stock" />
                         </ListItemButton>
                     </List>
                 </Collapse>
-                <Divider />
+                <Divider /> */}
             </List>
         </Box>
     );

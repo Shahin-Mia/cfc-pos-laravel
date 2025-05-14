@@ -3,6 +3,7 @@
 use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Checkout\CheckoutController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\ExpenseController;
 use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\UnitController;
 use App\Http\Controllers\Home\HomeController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Dashboard\MealController;
 use App\Http\Controllers\Dashboard\SaleController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Expense;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -29,6 +31,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource("/products", ProductController::class)->except(["update"]);
         Route::resource("/meal-categories", MealCategoryController::class)->except(["create", "show", "edit", "update"]);
         Route::resource("/meals", MealController::class)->except(["update", "show"]);
+        Route::resource("/expenses", ExpenseController::class)->except(["update", "show", "create", "edit"]);
+        Route::get("/expense-getReceipt/{id}", [ExpenseController::class, "getReceipt"])->name("expense.getReceipt");
+        Route::post("/expenses/{id}", [ExpenseController::class, "update"])->name("expenses.update");
         Route::post("/meals/{meal_id}", [MealController::class, "update"])->name("meals.update");
 
         Route::post("/products/{product_id}", [ProductController::class, "update"])
@@ -40,6 +45,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get("/sales", [SaleController::class, "getSales"])
             ->name("dashboard.sales");
+        Route::post("/sales", [SaleController::class, "getSalesByDate"])
+            ->name("dashboard.salesByDate");
     });
 });
 

@@ -17,7 +17,7 @@ class OrderController extends Controller
 {
     public $orders = [];
 
-    public function __construct(protected PrinterService $printerService) {}
+    // public function __construct(protected PrinterService $printerService) {}
 
     public function index()
     {
@@ -64,7 +64,7 @@ class OrderController extends Controller
             ]);
         }
 
-        $this->printerService->printReceipt([...$v_data, "id" => $order->id]);
+        // $this->printerService->printReceipt([...$v_data, "id" => $order->id]);
         session()->forget('cart');
         session()->forget('totalPrice');
         return Inertia::render('OrderComplete', [

@@ -13,11 +13,15 @@ class SaleController extends Controller
 {
     public $opening_balance = 0;
     public $closing_balance = 0;
+
     public function index()
     {
         $activeSession = PosSession::open()->get()->first();
         if (!$activeSession) {
-            $this->closing_balance = PosSession::latest()->first()->closing_cash;
+            $lastSession = PosSession::latest()->first();
+            if ($lastSession) {
+                $this->closing_balance = $lastSession->closing_cash;
+            }
         } else {
             $this->opening_balance = $activeSession->opening_cash;
         }
@@ -33,16 +37,16 @@ class SaleController extends Controller
             ->selectRaw('DATE(orders.created_at) as order_date')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.status', 'placed')
-            // ->whereBetween('orders.created_at', [
-            //     Carbon::today()->startOfDay(),
-            //     Carbon::today()->now()
-            // ])
+            ->whereBetween('orders.created_at', [
+                Carbon::today()->startOfDay(),
+                Carbon::today()->now()
+            ])
             ->orderBy('orders.created_at', 'desc')
             ->get();
         $totalSale = round($sales->sum(function ($sale) {
             return $sale->gross_sale_price * $sale->quantity;
         }), 2);
-        dd($totalSale);
+        // dd($totalSale);
         return Inertia::render("Sales", [
             "sales" => $sales,
             "totalSale" => $totalSale,
@@ -70,15 +74,75 @@ class SaleController extends Controller
             ->groupBy('order_items.meal_id', 'order_items.meal_title')
             ->orderByDesc('total_quantity')
             ->get();
+
+        $previousMonthSales = OrderItem::select([
+            'order_items.meal_id',
+            'order_items.meal_title',
+        ])
+            // ->selectRaw('SUM(order_items.quantity) AS total_quantity')
+            // ->selectRaw('SUM(order_items.sale_price * order_items.quantity * (1 - IFNULL(orders.discount_percentage, 0) / 100)) AS total_net_sales')
+            ->selectRaw('SUM((order_items.sale_price * order_items.quantity * (1 - IFNULL(orders.discount_percentage, 0) / 100)) + (order_items.sale_price * order_items.quantity * 6 / 100)) AS total_gross_sales')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.status', 'placed')
+            ->whereBetween('orders.created_at', [
+                Carbon::now()->subMonth()->startOfMonth(),
+                Carbon::now()->subMonth()->endOfMonth()
+            ])
+            ->groupBy('order_items.meal_id', 'order_items.meal_title')
+            // ->orderByDesc('total_quantity')
+            ->get();
+
         $totalSale = round($sales->sum('total_gross_sales'), 2);
         $netSalePrice = round($sales->sum('total_net_sales'), 2);
         $taxCollection = round($totalSale - $netSalePrice, 2);
         $taxCollection = round($taxCollection, 2);
+
+        $previousSale = round($previousMonthSales->sum('total_gross_sales'), 2);
+
+        session([
+            "totalSale" => $totalSale,
+            "netSalePrice" => $netSalePrice,
+            "taxCollection" => $taxCollection,
+            "previousMonthSale" => $previousSale
+        ]);
         return Inertia::render("DashboardSales", [
             "sales" => $sales,
             "totalSale" => $totalSale,
             "netSalePrice" => $netSalePrice,
-            "taxCollection" => $taxCollection
+            "taxCollection" => $taxCollection,
+            "previousMonthSale" => $previousSale
+        ]);
+    }
+
+    public function getSalesByDate(Request $request)
+    {
+        $validateData = $request->validate([
+            "from_date" => "required",
+            "to_date" => "required",
+        ]);
+
+        $sales = OrderItem::select([
+            'order_items.meal_id',
+            'order_items.meal_title',
+        ])
+            ->selectRaw('SUM(order_items.quantity) AS total_quantity')
+            ->selectRaw('SUM(order_items.sale_price * order_items.quantity * (1 - IFNULL(orders.discount_percentage, 0) / 100)) AS total_net_sales')
+            ->selectRaw('SUM((order_items.sale_price * order_items.quantity * (1 - IFNULL(orders.discount_percentage, 0) / 100)) + (order_items.sale_price * order_items.quantity * 6 / 100)) AS total_gross_sales')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.status', 'placed')
+            ->whereBetween('orders.created_at', [
+                Carbon::parse($validateData["from_date"])->startOfDay(),
+                Carbon::parse($validateData["to_date"])->endOfDay()
+            ])
+            ->groupBy('order_items.meal_id', 'order_items.meal_title')
+            ->orderByDesc('total_quantity')
+            ->get();
+        return Inertia::render("DashboardSales", [
+            "sales" => $sales,
+            "totalSale" => session("totalSale", 0),
+            "netSalePrice" => session("netSalePrice", 0),
+            "taxCollection" => session("taxCollection", 0),
+            "previousMonthSale" => session("previousMonthSale", 0)
         ]);
     }
 }

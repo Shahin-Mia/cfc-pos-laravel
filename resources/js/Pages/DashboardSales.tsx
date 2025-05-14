@@ -1,21 +1,45 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout"
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head } from "@inertiajs/react"
-import { Box, Card, CardActionArea, CardContent, Container, Divider, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material"
+import { Head, useForm } from "@inertiajs/react"
+import { Box, Button, Card, CardActionArea, CardContent, Container, Divider, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material"
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs, { Dayjs } from "dayjs";
+import 'dayjs/locale/en-gb';
+import 'dayjs/locale/de';
+
+interface DataTypes {
+    from_date: null | Dayjs,
+    to_date: null | Dayjs
+}
 
 interface Props {
     sales: any[];
     totalSale: string;
     netSalePrice: number;
     taxCollection: number;
+    previousMonthSale: number;
 }
 function DashboardSales({
     sales,
     totalSale,
     netSalePrice,
-    taxCollection
+    taxCollection,
+    previousMonthSale
 }: Props) {
-    console.log(sales);
+    const { data, setData, post, processing, errors } = useForm<DataTypes>({
+        from_date: null,
+        to_date: null,
+    });
+
+    const handleSearch = (event: any) => {
+        event.preventDefault();
+        const dates = {
+            from_date: data.from_date?.format("YYYY-MM-DD"),
+            to_date: data.to_date?.format("YYYY-MM-DD")
+        }
+        post(route("dashboard.salesByDate"));
+    }
     return (
         <DashboardLayout>
             <Head title="Sales" />
@@ -60,22 +84,53 @@ function DashboardSales({
                                         Previous Month Sales
                                     </Typography>
                                     <Typography variant="h4" color="primary">
-                                        RM {totalSale}
+                                        RM {previousMonthSale}
                                     </Typography>
                                 </Box>
                             </Stack>
                             <Divider />
                             <Box>
-                                <Box component='form'>
-                                    <Stack direction='row'>
-                                        <TextField
-                                            label="From Date"
-                                            variant="outlined"
-                                            size="small"
-                                            type="date"
-                                            margin="normal"
-                                        />
-                                    </Stack>
+                                <Box component='form' sx={{ my: 2 }} onSubmit={handleSearch}>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                                        <Stack direction='row' spacing={2} sx={{ alignItems: "baseline" }}>
+                                            <DatePicker
+                                                label="From Date"
+                                                value={data.from_date}
+                                                format="DD/MM/YYYY"
+                                                onChange={(newValue) => setData('from_date', newValue)}
+                                                slotProps={{
+                                                    textField: {
+                                                        error: !!errors.from_date,
+                                                        helperText: errors.from_date,
+                                                    },
+                                                }}
+                                            />
+                                            <DatePicker
+                                                label="To Date"
+                                                format="DD/MM/YYYY"
+                                                value={data.to_date}
+                                                onChange={(newValue) => setData('to_date', newValue)}
+                                                minDate={dayjs(data.from_date)}
+                                                disabled={data.from_date === null}
+                                                slotProps={{
+                                                    textField: {
+                                                        error: !!errors.to_date,
+                                                        helperText: errors.to_date,
+                                                    },
+                                                }}
+                                            />
+                                            <Box>
+                                                <Button
+                                                    variant="contained"
+                                                    type="submit"
+                                                    loading={processing}
+
+                                                >
+                                                    Search
+                                                </Button>
+                                            </Box>
+                                        </Stack>
+                                    </LocalizationProvider>
                                 </Box>
                                 <TableContainer sx={{ overflowY: 'auto', maxHeight: 300 }}>
                                     <Table stickyHeader size="small">
@@ -89,7 +144,7 @@ function DashboardSales({
                                         </TableHead>
                                         <TableBody>
                                             {sales.map((sale: any, index: any) => (
-                                                <TableRow key={sale.id}>
+                                                <TableRow key={index}>
                                                     <TableCell>
                                                         {index + 1}
                                                     </TableCell>

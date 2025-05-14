@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('meals', function (Blueprint $table) {
             $table->id();
             $table->string("title");
-            $table->double("purchase_price", 10, 2); // single purchase unit price
-            $table->double("sale_price", 10, 2); // single sale unit price
+            $table->double("purchase_price", 10, 2);
+            $table->double("sale_price", 10, 2);
             $table->unsignedBigInteger("meal_category_id");
             $table->boolean('is_available')->default(1);
             $table->text("description")->nullable();
